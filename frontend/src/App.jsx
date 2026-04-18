@@ -5,6 +5,8 @@ import Docs from './Docs'
 import CaseOne from './cases/CaseOne'
 import CaseTwo from './cases/CaseTwo'
 import CaseThree from './cases/CaseThree'
+import CaseFour from './cases/CaseFour'
+import CaseFive from './cases/CaseFive'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Routes, Route, Link } from 'react-router-dom';
@@ -40,11 +42,11 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/simulation" element={<Simulation />}>        
-        <Route path="one" element={<CaseOne />} />
-        <Route path="two" element={<CaseTwo />} />
-        <Route path="three" element={<CaseThree />} />
-        <Route path="four" element={<div>Komponent Case 4</div>} />
-        <Route path="five" element={<div>Komponent Case 5</div>} />
+        <Route path="QuantumTransfer" element={<CaseOne />} />
+        <Route path="MLKEM" element={<CaseTwo />} />
+        <Route path="Eavesdropping" element={<CaseThree />} />
+        <Route path="PNS" element={<CaseFour/>} />
+        <Route path="DDoS" element={<CaseFive/>} />
       </Route>
       <Route path="/docs" element={<Docs />} />
 

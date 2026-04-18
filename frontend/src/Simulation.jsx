@@ -3,11 +3,11 @@ import './Simulation.css';
 
 function Simulation() {
   const menuItems = [
-    { name: 'Quantum Transfer', path: 'one' },
-    { name: 'ML-KEM', path: 'two' },
-    { name: 'Eavesdropping', path: 'three' },
-    { name: 'PNS', path: 'four' },
-    { name: 'DDoS', path: 'five' },
+    { name: 'Quantum Transfer', path: 'QuantumTransfer' },
+    { name: 'ML-KEM', path: 'MLKEM' },
+    { name: 'Eavesdropping', path: 'Eavesdropping' },
+    { name: 'PNS', path: 'PNS' },
+    { name: 'DDoS', path: 'DDoS' },
   ];
 
   return (

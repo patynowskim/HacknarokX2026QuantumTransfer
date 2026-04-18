@@ -3,12 +3,12 @@ import './CaseThree.css';
 
 function CaseThree() {
     const [packets, setPackets] = useState([]);
-    const [logs, setLogs] = useState([{ role: 'System', msg: 'Oczekuję na rozpoczęcie symulacji z podsłuchem...' }]);
+    const [logs, setLogs] = useState([{ role: 'System', msg: 'Oczekuję na rozpoczęcie symulacji...' }]);
     const [isSimulating, setIsSimulating] = useState(false);
     const [eveActive, setEveActive] = useState(false);
     const logsEndRef = useRef(null);
 
-    const API_URL = 'https://patynow.ski/api/simulate';
+    const API_URL = 'https://api.patynow.ski/api/simulate';
 
     useEffect(() => {
         logsEndRef.current?.scrollIntoView({ behavior: "smooth" });

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import './CaseOne.css';
+import './CaseFive.css';
 
-function CaseOne() {
+function CaseFive() {
     const [packets, setPackets] = useState([]);
     const [logs, setLogs] = useState([{ role: 'System', msg: 'Oczekuję na rozpoczęcie symulacji...' }]);
     const [isSimulating, setIsSimulating] = useState(false);
@@ -88,7 +88,7 @@ function CaseOne() {
 
     return (
         <div className="d-flex flex-column w-100 h-100 bg-dark" style={{ minHeight: '400px' }}>
-            <h1 className='p-5 text-white w-100 d-flex justify-content-center align-items-center'>Case One - Quantum Transfer</h1>
+            <h1 className='p-5 text-white w-100 d-flex justify-content-center align-items-center'>Case One - DDoSr</h1>
 
             <div className="d-flex justify-content-between align-items-center flex-grow-1 px-5 w-100">
 
@@ -162,4 +162,4 @@ function CaseOne() {
     );
 }
 
-export default CaseOne;
+export default CaseFive;
