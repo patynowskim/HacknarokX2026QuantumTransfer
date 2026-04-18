@@ -24,8 +24,6 @@
 #include "bb84.hpp"
 #include "crypto.hpp"
 
-
-
 // Dynamic arguments
 
 void print_hex(const char* label, const uint8_t* data, size_t len, size_t max_print = 16) {
@@ -188,8 +186,8 @@ int main(int argc, char* argv[]) {
     }
     closesocket(server_fd);
     OQS_KEM_free(kem);
-    #ifdef _WIN32
+#ifdef _WIN32
     WSACleanup();
-    #endif
+#endif
     return 0;
 }
