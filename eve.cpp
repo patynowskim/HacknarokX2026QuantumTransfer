@@ -26,10 +26,11 @@ int main(int argc, char* argv[]) {
     WSAStartup(MAKEWORD(2, 2), &wsaData);
 
     std::string alice_ip = "127.0.0.1";
-    int alice_port = 8080, listen_port = 8081;
+    int alice_port = std::stoi(argv[2]);
+    int listen_port = std::stoi(argv[3]);
     bool pns_attack = false, ddos_attack = false;
 
-    for (int i = 1; i < argc; i++) {
+    for (int i = 4; i < argc; i++) {
         std::string arg = argv[i];
         if (arg == "--pns") pns_attack = true;
         if (arg == "--ddos") ddos_attack = true;
