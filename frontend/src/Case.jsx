@@ -8,33 +8,34 @@ function Case() {
     const sendPacketAtoB = () => {
         const packetId = Date.now() + Math.random();
         setPackets(prev => [...prev, { id: packetId, direction: 'AtoB' }]);
-        setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] [A -> B] Wysłano pakiet...`].slice(-4));
+        setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] [Alice -> Bob] Wysłano pakiet...`].slice(-4));
         setTimeout(() => {
             setPackets(prev => prev.filter(p => p.id !== packetId));
-            setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] [A -> B] Pakiet dotarł do Komputera B.`].slice(-4));
+            setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] [Alice -> Bob] Pakiet dotarł do Bob.`].slice(-4));
         }, 2000);
     };
 
     const sendPacketBtoA = () => {
         const packetId = Date.now() + Math.random();
         setPackets(prev => [...prev, { id: packetId, direction: 'BtoA' }]);
-        setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] [B -> A] Wysłano pakiet...`].slice(-4));
+        setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] [Bob -> ALice] Wysłano pakiet...`].slice(-4));
         setTimeout(() => {
             setPackets(prev => prev.filter(p => p.id !== packetId));
-            setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] [B -> A] Pakiet dotarł do Komputera A.`].slice(-4));
+            setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] [Bob -> Alice] Pakiet dotarł do Alice.`].slice(-4));
         }, 2000);
     };
 
     return (
         <div className="d-flex flex-column w-100 h-100 bg-dark" style={{ minHeight: '400px' }}>
+            <h1 className='p-5 text-white w-100 d-flex justify-content-center align-items-center'>Case One - Quantum Transfer</h1>
             <div className="d-flex justify-content-between align-items-center flex-grow-1 px-5 w-100">
                 
                 <div
-                    onClick={sendPacketAtoB}
                     className="bg-primary text-white d-flex justify-content-center align-items-center rounded shadow flex-shrink-0"
                     style={{ width: '120px', height: '120px', zIndex: 2, cursor: 'pointer' }}
+                    onClick={sendPacketAtoB}
                 >
-                    Komputer A
+                    Alice
                 </div>
                 
                 <div className="flex-grow-1 position-relative h-100">
@@ -55,11 +56,11 @@ function Case() {
                 </div>
                 
                 <div
-                    onClick={sendPacketBtoA}
                     className="bg-success text-white d-flex justify-content-center align-items-center rounded shadow flex-shrink-0"
                     style={{ width: '120px', height: '120px', zIndex: 2, cursor: 'pointer' }}
+                    onClick={sendPacketBtoA}
                 >
-                    Komputer B
+                    Bob
                 </div>
             </div>
             <div className="w-100 bg-black text-secondary m-0 p-3 consoleP overflow-hidden d-flex flex-column justify-content-end" style={{ height: '10%' }}>
