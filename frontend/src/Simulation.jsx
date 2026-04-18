@@ -3,14 +3,11 @@ import './Simulation.css';
 
 function Simulation() {
   const menuItems = [
-    { name: 'Case One', path: 'one' },
-    { name: 'Case Two', path: 'two' },
-    { name: 'Case Three', path: 'three' },
-    { name: 'Case Four', path: 'four' },
-    { name: 'Case Five', path: 'five' },
-    { name: 'Case Six', path: 'six' },
-    { name: 'Case Seven', path: 'seven' },
-    { name: 'Case Eight', path: 'eight' },
+    { name: 'Quantum Transfer', path: 'one' },
+    { name: 'ML-KEM', path: 'two' },
+    { name: 'Eavesdropping', path: 'three' },
+    { name: 'PNS', path: 'four' },
+    { name: 'DDoS', path: 'five' },
   ];
 
   return (
