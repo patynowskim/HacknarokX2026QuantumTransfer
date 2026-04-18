@@ -9,9 +9,21 @@ function App() {
 
   return (
     <>
-    <h1>NAZWA PLACEHOLDER</h1>
-    <button className='btn btn-primary'>Docs</button>
-    <button className='btn btn-primary'>Simulation</button>
+    <div className='container text-center w-100 '>
+      <div className="row mb-3 w-100">
+        <div className="col-12">
+          <div className="p-3 bg-primary text-white w-100"><h1>NAZWA PLACEHOLDER</h1></div>
+        </div>
+      </div>
+      <div className="row justify-content-center">
+        <div className="col-auto">
+          <button className='btn btn-primary p-5'>Docs</button>
+        </div>
+        <div className="col-auto">
+          <button className='btn btn-primary p-5'>Simulation</button>
+        </div>
+      </div>
+    </div>
     </>
   )
 }
