@@ -4,14 +4,27 @@
 #include <iomanip>
 #include <algorithm>
 
-#define NOMINMAX
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#ifdef _WIN32
+  #define NOMINMAX
+  #include <winsock2.h>
+  #include <ws2tcpip.h>
+  #pragma comment(lib, "Ws2_32.lib")
+#else
+  #include <sys/socket.h>
+  #include <arpa/inet.h>
+  #include <unistd.h>
+  #include <netdb.h>
+  #define SOCKET int
+  #define INVALID_SOCKET (-1)
+  #define SOCKET_ERROR (-1)
+  #define closesocket close
+#endif
+
 #include <oqs/oqs.h>
 #include "bb84.hpp"
 #include "crypto.hpp"
 
-#pragma comment(lib, "Ws2_32.lib")
+
 
 // Dynamic arguments
 
@@ -35,8 +48,10 @@ int main(int argc, char* argv[]) {
         custom_message = std::string(begin, end);
     }
 
+#ifdef _WIN32
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2, 2), &wsaData);
+#endif
 
     OQS_KEM *kem = OQS_KEM_new(OQS_KEM_alg_ml_kem_768);
     if (!kem) {
@@ -173,6 +188,8 @@ int main(int argc, char* argv[]) {
     }
     closesocket(server_fd);
     OQS_KEM_free(kem);
+    #ifdef _WIN32
     WSACleanup();
+    #endif
     return 0;
 }
