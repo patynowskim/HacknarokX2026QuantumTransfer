@@ -23,7 +23,7 @@ function Docs() {
       
       <section id="intro">
         <h3>Wstęp: Komputery kwantowe</h3>
-        <p>Klasyczne komputery operują na bitach (0 lub 1). Komputery kwantowe wykorzystują kubity, które dzięki superpozycji mogą znajdować się w wielu stanach jednocześnie do momentu pomiaru. Pozwala to na wykonywanie obliczeń, które są niewykonalne dla obecnych maszyn, w tym na błyskawiczne łamanie tradycyjnych szyfrów asymetrycznych.</p>
+        <p>Klasyczne komputery operują na bitach (0 lub 1). Komputery kwantowe wykorzystują kubity, które dzięki superpozycji mogą wykonywać wybrane operacje w złoności polinomialnej. Pozwala to na wykonywanie obliczeń, które są niewykonalne dla obecnych maszyn, w tym na błyskawiczne łamanie tradycyjnych szyfrów asymetrycznych.</p>
       </section>
 
       <section id="protocol">
@@ -33,7 +33,7 @@ function Docs() {
 
       <section id="purpose">
         <h3>Cel projektu</h3>
-        <p>Integracja z istniejącą infrastrukturą światłowodową. QTCP pozwala na jednoczesne przesyłanie sygnału kwantowego i danych klasycznych tym samym medium. Celem jest zapewnienie bezpieczeństwa (Quantum-Safe) przy wykorzystaniu obecnych połączeń internetowych.</p>
+        <p>Integracja z istniejącą infrastrukturą światłowodową. QTCP pozwala na jednoczesne przesyłanie sygnału kwantowego i danych klasycznych tym samym medium. Celem jest zapewnienie bezpieczeństwa (Quantum-Proof) przy wykorzystaniu obecnych połączeń internetowych.</p>
       </section>
 
       <section id="how-it-works">
@@ -51,7 +51,7 @@ function Docs() {
         </div>
 
         <h4>Wersja kwantowa</h4>
-        <p>Wykorzystuje przesył fotonów. Zgodnie z zasadą no-cloning i efektem obserwatora, każda próba przechwycenia (pomiaru) klucza przez stronę trzecią powoduje błąd transmisji i zmianę stanu kwantowego. Pozwala to serwerom na natychmiastowe wykrycie podsłuchu i odrzucenie uszkodzonego klucza.</p>
+        <p>Wykorzystuje przesył fotonów. Zgodnie z zasadą no-cloning i efektem obserwatora, każda próba przechwycenia (pomiaru) klucza przez stronę trzecią powoduje błąd transmisji i zapadnięcie stanu kwantowego. Pozwala to serwerom na natychmiastowe wykrycie podsłuchu i odrzucenie skompromitowanego klucza.</p>
 
         <div className="placeholder-img">
           [MIEJSCE NA ZDJĘCIE: FIZYKA PRZESYŁU BB84]
@@ -80,8 +80,9 @@ function Docs() {
         <ul>
           <li><strong>Transmisja poprawna:</strong> Stabilna wymiana BB84, szyfrowanie AES-GCM kluczem kwantowym.</li>
           <li><strong>Eavesdropping (Podsłuch):</strong> Wykrycie wysokiego poziomu błędów (QBER), przerwanie procedury BB84, przejście na ML-KEM.</li>
+          <li><strong>Photon number splitting (Dzielenie fotonów):</strong> Technika ataku, która polega na wykorzystaniu fotonów o niskiej intensywności do podsłuchu informacji.</li>
           <li><strong>DDoS / Atak fizyczny:</strong> Brak możliwości przesyłu fotonów skutkuje natychmiastowym przejściem w tryb standardowy (fallback).</li>
-          <li><strong>Interferencje:</strong> Szum na linii traktowany jest jako zagrożenie bezpieczeństwa – system wymusza renegocjację klucza.</li>
+          <li><strong>Interferencje:</strong> Szum na linii traktowany jest jako zagrożenie bezpieczeństwa - system wymusza renegocjację klucza.</li>
         </ul>
       </section>
       </div>
