@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <time.h>
 #define NOMINMAX
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -8,85 +9,25 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-void relay_data(
-    SOCKET from,
-    SOCKET to,
-    const std::string& label,
-    bool modify_quantum = false,
-    bool pns_attack = false,
-    bool ddos_attack = false
-) {
-    char buffer[4096];
-    int bytes = recv(from, buffer, sizeof(buffer), 0);
-    if (bytes > 0) {
-        if (modify_quantum && bytes >= (int)sizeof(bb84::Qubit)) {
-            int num_qubits = bytes / sizeof(bb84::Qubit);
-            bb84::Qubit* qubits = (bb84::Qubit*)buffer;
-
-            if (pns_attack) {
-                std::cerr << "[Eve] Performing PNS attack on quantum channel...\n";
-
-                for (int i = 0; i < num_qubits; i++) {
-                    if (qubits[i].pulse_type == bb84::SIGNAL) {
-                    }
-                    else if (qubits[i].pulse_type == bb84::DECOY) {
-                        uint8_t eve_basis = rand() % 2;
-                        if (qubits[i].basis != eve_basis) {
-                            qubits[i].value = rand() % 2;
-                            qubits[i].basis = eve_basis;
-                        }
-                    }
-                }
-
-            } else {
-                std::cerr << "[Eve] Intercept-resend attack...\n";
-
-                for (int i = 0; i < num_qubits; i++) {
-                    uint8_t eve_basis = rand() % 2;
-                    if (qubits[i].basis != eve_basis) {
-                        qubits[i].value = rand() % 2;
-                        qubits[i].basis = eve_basis;
-                    }
-                }
-            }
-        }
-        std::cerr << "[Eve] Relaying " << bytes << " bytes from " << label << "\n";
-        send(to, buffer, bytes, 0);
-
-        // DDoS implementation
-        if (ddos_attack) {
-            std::cerr << "[Eve] DDoS: flooding channel...\n";
-
-            for (int i = 0; i < 5; i++) {
-                send(to, buffer, bytes, 0);
-            }
-
-            char junk[512];
-            for (int i = 0; i < 512; i++) {
-                junk[i] = rand() % 256;
-            }
-
-            for (int i = 0; i < 5; i++) {
-                send(to, junk, sizeof(junk), 0);
-            }
-        }
+// Helper to ensure we get exactly what we need before modifying
+bool recv_exact(SOCKET s, char* buf, int len) {
+    int total = 0;
+    while (total < len) {
+        int r = recv(s, buf + total, len - total, 0);
+        if (r <= 0) return false;
+        total += r;
     }
+    return true;
 }
 
 int main(int argc, char* argv[]) {
+    srand(time(NULL));
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2, 2), &wsaData);
 
     std::string alice_ip = "127.0.0.1";
-    int alice_port = 8080;
-    int listen_port = 8081;
-
-    if (argc >= 2) alice_ip = argv[1];
-    if (argc >= 3) alice_port = std::stoi(argv[2]);
-    if (argc >= 4) listen_port = std::stoi(argv[3]);
-
-    bool pns_attack = false;
-    bool ddos_attack = false;
+    int alice_port = 8080, listen_port = 8081;
+    bool pns_attack = false, ddos_attack = false;
 
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
@@ -94,7 +35,6 @@ int main(int argc, char* argv[]) {
         if (arg == "--ddos") ddos_attack = true;
     }
 
-    // 1. Connect to Alice
     SOCKET to_alice = socket(AF_INET, SOCK_STREAM, 0);
     sockaddr_in alice_addr{};
     alice_addr.sin_family = AF_INET;
@@ -102,11 +42,10 @@ int main(int argc, char* argv[]) {
     alice_addr.sin_port = htons(alice_port);
 
     if (connect(to_alice, (struct sockaddr*)&alice_addr, sizeof(alice_addr)) == SOCKET_ERROR) {
-        std::cerr << "Could not connect to Alice. Is she running?\n";
+        std::cerr << "[Eve] Connection to Alice failed.\n";
         return 1;
     }
 
-    // 2. Listen for Bob
     SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
     sockaddr_in listen_addr{};
     listen_addr.sin_family = AF_INET;
@@ -115,13 +54,46 @@ int main(int argc, char* argv[]) {
     bind(listen_sock, (struct sockaddr*)&listen_addr, sizeof(listen_addr));
     listen(listen_sock, 1);
 
-    std::cerr << "[Eve] MITM Active. Alice: " << alice_port << " <-> Bob: " << listen_port << "\n";
+    std::cerr << "[Eve] MITM Proxy Active. Waiting for Bob...\n";
     SOCKET to_bob = accept(listen_sock, nullptr, nullptr);
+    std::cerr << "[Eve] Bob connected. Intercepting...\n";
 
-    // 3. Intercept Phase 1: The Qubits (Alice -> Bob)
-    relay_data(to_alice, to_bob, "Alice (Qubits)", true, pns_attack, ddos_attack);
+    // --- STEP 1: RELAY MODE BYTE ---
+    char mode;
+    recv(to_alice, &mode, 1, 0);
+    send(to_bob, &mode, 1, 0);
+    std::cerr << "[Eve] Relayed Mode: " << (int)mode << "\n";
 
-    // 4. Relay all subsequent traffic (Classical Channels)
+    // --- STEP 2: INTERCEPT QUBITS (If BB84) ---
+    if (mode == 0x01) {
+        int qubit_payload_size = bb84::NUM_QUBITS * sizeof(bb84::Qubit);
+        std::vector<char> q_buffer(qubit_payload_size);
+        
+        if (recv_exact(to_alice, q_buffer.data(), qubit_payload_size)) {
+            bb84::Qubit* qubits = (bb84::Qubit*)q_buffer.data();
+            
+            if (pns_attack) {
+                std::cerr << "[Eve] Attacking Decoy States (PNS)...\n";
+                for(int i=0; i<bb84::NUM_QUBITS; i++) {
+                    if (qubits[i].pulse_type == bb84::DECOY) {
+                        qubits[i].basis = rand() % 2; // Measure in wrong basis
+                        qubits[i].value = rand() % 2; // Distort value
+                    }
+                }
+            } else {
+                std::cerr << "[Eve] Intercept-Resend Attack...\n";
+                for(int i=0; i<bb84::NUM_QUBITS; i++) {
+                    qubits[i].basis = rand() % 2; 
+                    qubits[i].value = rand() % 2;
+                }
+            }
+            send(to_bob, q_buffer.data(), qubit_payload_size, 0);
+        }
+    }
+
+    // --- STEP 3: GENERAL RELAY ---
+    std::cerr << "[Eve] Entering Classical Relay Mode...\n";
+    char buffer[8192];
     while (true) {
         fd_set read_fds;
         FD_ZERO(&read_fds);
@@ -129,8 +101,21 @@ int main(int argc, char* argv[]) {
         FD_SET(to_bob, &read_fds);
 
         if (select(0, &read_fds, nullptr, nullptr, nullptr) > 0) {
-            if (FD_ISSET(to_alice, &read_fds)) relay_data(to_alice, to_bob, "Alice -> Bob");
-            if (FD_ISSET(to_bob, &read_fds)) relay_data(to_bob, to_alice, "Bob -> Alice");
+            if (FD_ISSET(to_alice, &read_fds)) {
+                int b = recv(to_alice, buffer, sizeof(buffer), 0);
+                if (b <= 0) break;
+                send(to_bob, buffer, b, 0);
+            }
+            if (FD_ISSET(to_bob, &read_fds)) {
+                int b = recv(to_bob, buffer, sizeof(buffer), 0);
+                if (b <= 0) break;
+                // If DDoS is on, we flood Bob when he tries to talk to Alice
+                if (ddos_attack) {
+                    std::cerr << "[Eve] DDoS: Interfering with Bob's response...\n";
+                    for(int i=0; i<3; i++) send(to_alice, "JUNK", 4, 0);
+                }
+                send(to_alice, buffer, b, 0);
+            }
         }
     }
 
