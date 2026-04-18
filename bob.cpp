@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
     }
 
     // (UNCOMMENT NEXT LINE TO SIMULATE AN EAVESDROPPER) 
-    // is_evesdropping = true; 
+    // is_evesdropping = true;
 
     uint8_t validation_result = is_evesdropping ? 0 : 1;
     send(client_fd, (const char*)&validation_result, 1, 0);

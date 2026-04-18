@@ -25,3 +25,9 @@ target_include_directories(alice PRIVATE ${liboqs_SOURCE_DIR}/src)
 add_executable(bob bob.cpp)
 target_link_libraries(bob PRIVATE oqs ws2_32)
 target_include_directories(bob PRIVATE ${liboqs_SOURCE_DIR}/src)
+
+
+# Eve (Evesdropper)
+add_executable(eve eve.cpp)
+target_link_libraries(eve PRIVATE oqs ws2_32)
+target_include_directories(eve PRIVATE ${liboqs_SOURCE_DIR}/src)

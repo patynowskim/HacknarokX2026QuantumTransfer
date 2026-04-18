@@ -12,7 +12,7 @@ function Home() {
       <div className="row mb-3">
         <div className="col-12">
           <div className="p-3 bg-primary text-white rounded">
-            <h1>NAZWA PLACEHOLDER</h1>
+            <h1>QTCP</h1>
           </div>
         </div>
       </div>
