@@ -79,10 +79,17 @@ int main(int argc, char* argv[]) {
             std::cerr << "[Alice] Accepted connection.\n";
 
             // Simple anti-ddos defence
+#ifdef _WIN32
             DWORD timeout = 5000;
-
-            setsockopt(conn, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
-            setsockopt(conn, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
+            setsockopt(conn, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
+            setsockopt(conn, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
+#else
+            struct timeval tv;
+            tv.tv_sec = 5;
+            tv.tv_usec = 0;
+            setsockopt(conn, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
+            setsockopt(conn, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof(tv));
+#endif
 
             // Session Key for Payload Encryption
             std::vector<uint8_t> session_key;
