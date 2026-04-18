@@ -1,27 +1,43 @@
-import { useState } from 'react';
-import './Case.css';
+import { useState, useEffect } from 'react';
+import './CaseOne.css';
 
-function Case() {
+function CaseOne() {
     const [packets, setPackets] = useState([]);
-    const [logs, setLogs] = useState(["Oczekuję na przesyłanie pakietów..."]);
+    const [logs, setLogs] = useState(["Oczekuję na logi z backendu..."]);
+    const FLASK_API_URL = 'http://127.0.0.1:5000/logs';
+    const fetchLogs = async () => {
+        try {
+            const response = await fetch(FLASK_API_URL);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.logs && data.logs.length > 0) {
+                    setLogs(data.logs.slice(-6));
+                }
+            }
+        } catch (error) {
+            console.error("Błąd połączenia z backendem:", error);
+        }
+    };
+    useEffect(() => {
+        fetchLogs();
+        const interval = setInterval(fetchLogs, 1000); 
+        
+        return () => clearInterval(interval);
+    }, []);
 
     const sendPacketAtoB = () => {
         const packetId = Date.now() + Math.random();
         setPackets(prev => [...prev, { id: packetId, direction: 'AtoB' }]);
-        setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] [Alice -> Bob] Wysłano pakiet...`].slice(-4));
         setTimeout(() => {
             setPackets(prev => prev.filter(p => p.id !== packetId));
-            setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] [Alice -> Bob] Pakiet dotarł do Bob.`].slice(-4));
         }, 2000);
     };
 
     const sendPacketBtoA = () => {
         const packetId = Date.now() + Math.random();
         setPackets(prev => [...prev, { id: packetId, direction: 'BtoA' }]);
-        setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] [Bob -> ALice] Wysłano pakiet...`].slice(-4));
         setTimeout(() => {
             setPackets(prev => prev.filter(p => p.id !== packetId));
-            setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] [Bob -> Alice] Pakiet dotarł do Alice.`].slice(-4));
         }, 2000);
     };
 
@@ -29,15 +45,14 @@ function Case() {
         <div className="d-flex flex-column w-100 h-100 bg-dark" style={{ minHeight: '400px' }}>
             <h1 className='p-5 text-white w-100 d-flex justify-content-center align-items-center'>Case One - Quantum Transfer</h1>
             <div className="d-flex justify-content-between align-items-center flex-grow-1 px-5 w-100">
-                
+
                 <div
                     className="bg-primary text-white d-flex justify-content-center align-items-center rounded shadow flex-shrink-0"
                     style={{ width: '120px', height: '120px', zIndex: 2, cursor: 'pointer' }}
-                    onClick={sendPacketAtoB}
                 >
                     Alice
                 </div>
-                
+
                 <div className="flex-grow-1 position-relative h-100">
                     <svg
                         className="position-absolute w-100 h-100"
@@ -54,25 +69,35 @@ function Case() {
                         }
                     })}
                 </div>
-                
+
                 <div
                     className="bg-success text-white d-flex justify-content-center align-items-center rounded shadow flex-shrink-0"
                     style={{ width: '120px', height: '120px', zIndex: 2, cursor: 'pointer' }}
-                    onClick={sendPacketBtoA}
                 >
                     Bob
                 </div>
             </div>
-            <div className="w-100 bg-black text-secondary m-0 p-3 consoleP overflow-hidden d-flex flex-column justify-content-end" style={{ height: '10%' }}>
-                {logs.map((log, index) => (
-                    <div key={index} className="text-white" style={{ fontSize: '0.9rem', fontFamily: 'monospace' }}>
-                        {log}
-                    </div>
-                ))}
-            </div>
             
+            <div className="w-100 bg-black m-0 p-3 consoleP overflow-hidden d-flex flex-column justify-content-end" style={{ height: '10%' }}>
+                {logs.map((log, index) => {
+                    let colorClass = "text-secondary";
+                    if (log.includes("[Bob]")) {
+                        colorClass = "text-success";
+                    }
+                    else if (log.includes("[Alice]")) {
+                        colorClass = "text-primary";
+                    }
+                    
+                    return (
+                        <div key={index} className={colorClass} style={{ fontSize: '0.9rem', fontFamily: 'monospace' }}>
+                            {log}
+                        </div>
+                    );
+                })}
+            </div>
+
         </div>
     );
 }
 
-export default Case;
+export default CaseOne;

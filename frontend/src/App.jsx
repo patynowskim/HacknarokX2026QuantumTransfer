@@ -2,7 +2,8 @@ import { useState } from 'react'
 import './App.css'
 import Simulation from './Simulation'
 import Docs from './Docs'
-import Case from './Case'
+import CaseOne from './cases/CaseOne'
+import CaseTwo from './cases/CaseTwo'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Routes, Route, Link } from 'react-router-dom';
@@ -38,8 +39,8 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/simulation" element={<Simulation />}>        
-        <Route path="one" element={<Case />} />
-        <Route path="two" element={<div>Komponent Case 2</div>} />
+        <Route path="one" element={<CaseOne />} />
+        <Route path="two" element={<CaseTwo />} />
         <Route path="three" element={<div>Komponent Case 3</div>} />
         <Route path="four" element={<div>Komponent Case 4</div>} />
         <Route path="five" element={<div>Komponent Case 5</div>} />
