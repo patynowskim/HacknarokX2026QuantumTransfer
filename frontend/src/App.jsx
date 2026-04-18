@@ -13,20 +13,20 @@ function Home() {
     <div className='container text-center mt-5'>
       <div className="row mb-3">
         <div className="col-12">
-          <div className="p-3 bg-primary text-white rounded">
-            <h1>QTCP</h1>
-          </div>
+          <img src='logo.png' alt='logo projektu' className='mb-4' style={{ maxWidth: '30%' }} />
+          <h1 className='mb-3'>QTCP - Quantum Transmission Control Protocol</h1>
+          <p className='lead mb-4'>Bezpieczna wymiana kluczy kryptograficznych w erze komputerów kwantowych</p>
         </div>
       </div>
       <div className="row justify-content-center">
         <div className="col-auto">
           <Link to="/docs">
-            <button className='btn btn-primary p-5'>Docs</button>
+            <button className='btn btn-secondary p-2'>Docs</button>
           </Link>
         </div>
         <div className="col-auto">
           <Link to="/simulation">
-            <button className='btn btn-primary p-5'>Simulation</button>
+            <button className='btn btn-secondary p-2'>Simulation</button>
           </Link>
         </div>
       </div>

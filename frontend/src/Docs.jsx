@@ -1,12 +1,13 @@
 import { useState } from 'react'
+import { Routes, Route, Link } from 'react-router-dom';
 import './Docs.css'
 
 function Docs() {
 
   return (
     <>
-    <div className='navSection'><a href='./'>
-      <img src='logo.png' alt='logo, nawigacja do strony głównej' /></a>
+    <div className='navSection'><Link to='/'>
+      <img src='logo.png' alt='logo, nawigacja do strony głównej' /></Link>
       <ul>
         <h2>Spis treści</h2>
         <li><a href="#intro">Wstęp: Komputery kwantowe</a></li>
@@ -85,6 +86,18 @@ function Docs() {
           <li><strong>Interferencje:</strong> Szum na linii traktowany jest jako zagrożenie bezpieczeństwa - system wymusza renegocjację klucza.</li>
         </ul>
       </section>
+      <div className="row justify-content-center">
+        <div className="col-auto">
+          <Link to="/">
+            <button className='btn btn-secondary p-2'>Strona główna</button>
+          </Link>
+        </div>
+        <div className="col-auto">
+          <Link to="/simulation">
+            <button className='btn btn-secondary p-2'>Symulacja</button>
+          </Link>
+        </div>
+      </div>
       </div>
     </>
   )
