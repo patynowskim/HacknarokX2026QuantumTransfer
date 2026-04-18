@@ -5,8 +5,6 @@
 #include <iostream>
 
 namespace crypto {
-    // Prototypical XOR Cipher using the session key to act as AES-256 for symmetric payload encryption
-    // In production, this would be replaced by AES-256-GCM or ChaCha20-Poly1305.
     void encrypt_decrypt(std::string& data, const std::vector<uint8_t>& key) {
         if (key.empty()) return;
         for (size_t i = 0; i < data.size(); ++i) {
