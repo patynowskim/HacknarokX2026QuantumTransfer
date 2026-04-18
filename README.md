@@ -45,3 +45,17 @@ eve.exe 127.0.0.1 8080 8081 --pns
 ```
 bob.exe 127.0.0.1 8081 "B: TEST TEST"
 ```
+
+### DDoS attack example
+
+```
+alice.exe 0.0.0.0 8080 "A: DUPA WOLOWA"
+```
+
+```
+eve.exe 127.0.0.1 8080 8081 --ddos
+```
+
+```
+bob.exe 127.0.0.1 8081 "B: TEST TEST"
+```
