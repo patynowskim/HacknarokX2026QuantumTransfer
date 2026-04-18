@@ -63,8 +63,27 @@ def simulate():
     data = request.json
     alice_payload = data.get('alice_payload', 'Hello from Alice')
     bob_payload = data.get('bob_payload', 'Hello from Bob')
+    
+    scenario = data.get('scenario', 'normal')
     use_eve = data.get('use_eve', False)
     eve_attack_type = data.get('eve_attack_type', '')
+    use_mlkem = False
+
+    if scenario == 'mlkem':
+        use_mlkem = True
+        use_eve = False
+    elif scenario == 'eavesdropping':
+        use_eve = True
+        eve_attack_type = ''
+    elif scenario == 'pns':
+        use_eve = True
+        eve_attack_type = 'pns'
+    elif scenario == 'ddos':
+        use_eve = True
+        eve_attack_type = 'ddos'
+    elif scenario == 'normal':
+        use_eve = False
+        eve_attack_type = ''
     
     output_list = []
     threads = []
@@ -77,6 +96,8 @@ def simulate():
         
     # Start Alice
     alice_cmd = ["./build/alice", "127.0.0.1", alice_port]
+    if use_mlkem:
+        alice_cmd.append("--mlkem")
     t_alice = threading.Thread(target=run_node, args=("Alice", alice_cmd, alice_payload, output_list))
     t_alice.start()
     threads.append(t_alice)
