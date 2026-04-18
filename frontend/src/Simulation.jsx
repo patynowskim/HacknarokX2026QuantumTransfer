@@ -8,7 +8,6 @@ function Simulation() {
     { name: 'Case Three', path: 'three' },
     { name: 'Case Four', path: 'four' },
     { name: 'Case Five', path: 'five' },
-    { name: 'Case Six', path: 'six' },
   ];
 
   return (

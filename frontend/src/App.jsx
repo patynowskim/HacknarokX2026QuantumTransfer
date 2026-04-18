@@ -45,7 +45,6 @@ function App() {
         <Route path="three" element={<CaseThree />} />
         <Route path="four" element={<div>Komponent Case 4</div>} />
         <Route path="five" element={<div>Komponent Case 5</div>} />
-        <Route path="six" element={<div>Komponent Case 6</div>} />
       </Route>
       <Route path="/docs" element={<Docs />} />
 
