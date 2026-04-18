@@ -32,6 +32,7 @@ namespace bb84 {
         return v;
     }
 
+    // Deprecated RNG functions
     inline uint8_t random_bit() {
         static std::mt19937 gen(std::random_device{}());
         std::uniform_int_distribution<> dis(0, 1);
@@ -75,5 +76,25 @@ namespace bb84 {
             else measured[i] = random_bit();
         }
         return measured;
+    }
+
+    inline std::vector<uint8_t> universal_hash(const std::vector<uint8_t>& input_bits) {
+        std::vector<uint8_t> output_key(32, 0);
+        if (input_bits.size() < 256) return input_bits;
+
+        std::mt19937 gen(42); 
+        std::uniform_int_distribution<> dis(0, 1);
+
+        for (int i = 0; i < 256; ++i) {
+            uint8_t bit_sum = 0;
+            for (size_t j = 0; j < input_bits.size(); j++) {
+                uint8_t matrix_element = dis(gen);
+                bit_sum ^= (input_bits[j] & matrix_element);
+            }
+            if (bit_sum) {
+                output_key[i / 8] |= (1 << (i % 8));
+            }
+        }
+        return output_key;
     }
 }

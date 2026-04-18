@@ -141,10 +141,9 @@ int main(int argc, char* argv[]) {
 
     if (!is_evesdropping) {
         std::cerr << "[Bob] BB84 SUCCESS! No eavesdropper detected.\n";
-        std::cerr << "[Bob] Using established quantum key.\n";
+        std::cerr << "[Bob] Applying Universal Hashing (Privacy Amplification)...\n";
         bb84_success = true;
-        // Map quantum bits safely to 256-bit (32 byte) symmetric encryption key size
-        session_key.assign(sifted_key.begin(), sifted_key.begin() + std::min((size_t)32, sifted_key.size()));
+        session_key = bb84::universal_hash(sifted_key);
     } else {
         std::cerr << "\n[!] WARNING [!] BB84 EAVESDROPPER DETECTED OR HIGH NOISE!\n";
         std::cerr << "[Bob] Falling back to traditional Post-Quantum ML-KEM.\n";
