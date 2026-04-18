@@ -1,0 +1,48 @@
+section {
+  margin: 20px 0;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 10px;
+}
+section p {
+    text-indent: 2em;
+}
+
+.navSection {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 200px;
+  height: 100vh;
+  background: #f0f0f0;
+  padding: 10px;
+  overflow-y: auto;
+  border-right: 1px solid #ccc;
+}
+
+.navSection h2 {
+  margin-top: 0;
+}
+
+.navSection ul {
+  list-style: none;
+  padding: 0;
+}
+
+.navSection li {
+  margin: 10px 0;
+}
+
+.navSection a {
+  text-decoration: none;
+  color: #333;
+}
+
+.navSection a:hover {
+  color: #007bff;
+}
+
+.documentation {
+  margin-left: 220px;
+  padding: 20px;
+}
