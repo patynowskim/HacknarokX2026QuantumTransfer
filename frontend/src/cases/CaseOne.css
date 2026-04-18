@@ -7,14 +7,14 @@
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); 
 }
 
-.packet-a-to-b {
-    background-color: #ffc107; 
+.packet-a-to-b {    
+    background-color: #0040cb !important; 
     top: calc(50% - 30px);
     animation: slideAtoB 2s linear forwards;
 }
 
 .packet-b-to-a {
-    background-color: #0dcaf0;
+    background-color: #059400 !important;
     top: calc(50% + 10px);
     animation: slideBtoA 2s linear forwards;
 }

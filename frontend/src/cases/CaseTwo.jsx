@@ -43,7 +43,7 @@ function CaseTwo() {
 
     return (
         <div className="d-flex flex-column w-100 h-100 bg-dark" style={{ minHeight: '400px' }}>
-            <h1 className='p-5 text-white w-100 d-flex justify-content-center align-items-center'>Case Two - EAVESDROPPINGr</h1>
+            <h1 className='p-5 text-white w-100 d-flex justify-content-center align-items-center'>Case Two - ML-KEM</h1>
             <div className="d-flex justify-content-between align-items-center flex-grow-1 px-5 w-100">
 
                 <div
