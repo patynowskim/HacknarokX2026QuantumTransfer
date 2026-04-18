@@ -9,103 +9,80 @@ function Docs() {
       <img src='logo.png' alt='logo, nawigacja do strony głównej' /></a>
       <ul>
         <h2>Spis treści</h2>
-        <li><a href="#intro">Intro do komp kwantowych</a></li>
+        <li><a href="#intro">Wstęp: Komputery kwantowe</a></li>
         <li><a href="#protocol">Protokół QTCP</a></li>
-        <li><a href="#purpose">Zamysł projektu</a></li>
-        <li><a href="#how-it-works">Jak to działa</a></li>
-        <li><a href="#advantages">Zalety działania</a></li>
-        <li><a href="#why-it-works">Czemu to działa</a></li>
-        <li><a href="#use-cases">Możliwe użycia i edge cases</a></li>
+        <li><a href="#purpose">Cel projektu</a></li>
+        <li><a href="#how-it-works">Mechanizm działania</a></li>
+        <li><a href="#advantages">Zalety</a></li>
+        <li><a href="#why-it-works">Podstawy techniczne</a></li>
+        <li><a href="#use-cases">Scenariusze i Edge Cases</a></li>
       </ul>
     </div>
     <div className='documentation'> 
-      <h1>Docs</h1>
+      <h1>Dokumentacja QTCP</h1>
       
       <section id="intro">
-        <h3>Komputery kwantowe</h3>
-        <p>Tradycyjne komputery, z których korzystamy na co dzień, działają na bitach - informacja to zawsze albo 0, albo 1. Wyobraź sobie to jako przełącznik światła: włączony lub wyłączony. Komputery kwantowe używają <strong>kubitów</strong>. Dzięki prawom fizyki kwantowej, kubit może być zerem, jedynką, albo - i tu zaczyna się magia - obiema wartościami naraz (nazywamy to superpozycją). Dopiero gdy spróbujemy ten kubit "odczytać" (zmierzyć), decyduje się on na jedną, konkretną wartość.</p>
-        <p>Ta właściwość sprawia, że komputery kwantowe potrafią rozwiązywać niezwykle skomplikowane problemy matematyczne (w tym łamać obecne hasła) w ułamku sekundy.</p>
+        <h3>Wstęp: Komputery kwantowe</h3>
+        <p>Klasyczne komputery operują na bitach (0 lub 1). Komputery kwantowe wykorzystują kubity, które dzięki superpozycji mogą znajdować się w wielu stanach jednocześnie do momentu pomiaru. Pozwala to na wykonywanie obliczeń, które są niewykonalne dla obecnych maszyn, w tym na błyskawiczne łamanie tradycyjnych szyfrów asymetrycznych.</p>
       </section>
 
       <section id="protocol">
         <h3>Protokół QTCP</h3>
-        <p>QTCP to nasz pomost między obecnym internetem a nadchodzącą erą kwantową. To protokół komunikacyjny stworzony głównie do relacji serwer-serwer. Jego głównym zadaniem jest bezpieczne przesłanie tzw. "klucza" (hasła), którym potem szyfrowane są normalne dane. Zapewnia on absolutne bezpieczeństwo w środowisku kwantowym i pozwala na bezbolesne przejście na nową infrastrukturę, zanim stare metody szyfrowania staną się bezużyteczne.</p>
+        <p>QTCP (Quantum Transmission Control Protocol) to protokół warstwy komunikacyjnej przeznaczony do bezpiecznej wymiany kluczy kryptograficznych w relacjach serwer-serwer. Służy do zabezpieczenia przesyłu danych przed atakami ze strony komputerów kwantowych oraz umożliwia migrację infrastruktury klasycznej na kwantową.</p>
       </section>
 
       <section id="purpose">
-        <h3>Zamysł projektu</h3>
-        <p>Z roku na roku możliwa komercjalizacja komputerowych kwantowych staje się coraz bardziej realna. By zapewnić gładką tranzycję w świat nowej technologii, należy już teraz szykować podwaliny pod nową infrastrukturę. Nasz projekt celuje by stać się platformą przejściową między serwerami kwantowymi a klasycznymi.
-          </p>
+        <h3>Cel projektu</h3>
+        <p>Integracja z istniejącą infrastrukturą światłowodową. QTCP pozwala na jednoczesne przesyłanie sygnału kwantowego i danych klasycznych tym samym medium. Celem jest zapewnienie bezpieczeństwa (Quantum-Safe) przy wykorzystaniu obecnych połączeń internetowych.</p>
       </section>
 
       <section id="how-it-works">
-        <h3>Jak to działa</h3>
-        <p>Protokół jest sprytny i zawsze ma plan B. Rozważa dwie opcje: główną (połączenie kwantowe) oraz zapasową (fallback na przesył standardowy). Proces wygląda następująco:</p>
+        <h3>Mechanizm działania</h3>
+        <p>Protokół opiera się na czterech krokach:</p>
         <ol>
-          <li><strong>Tworzenie klucza (BB84):</strong> Najpierw serwery próbują dogadać się kwantowo i ustalić wspólny klucz szyfrujący za pomocą protokołu BB84 (wysyłają do siebie pojedyncze cząstki światła).</li>
-          <li><strong>Plan B (ML-KEM):</strong> Jeśli z jakiegoś powodu fizyczne przesłanie cząstek się nie uda, system automatycznie generuje klucz algorytmem ML-KEM.</li>
-          <li><strong>Szyfrowanie:</strong> Gdy serwery mają już wspólny klucz, cała reszta danych (np. pliki, wiadomości) jest nim szyfrowana i wysyłana normalnym kanałem.</li>
-          <li><strong>Rotacja:</strong> Dla maksymalnego bezpieczeństwa, klucz nie jest wieczny. Co jakiś czas proces jest powtarzany i klucz ulega zmianie.</li>
+          <li><strong>Generowanie klucza BB84:</strong> Próba ustanowienia klucza drogą kwantową (wymiana fotonów).</li>
+          <li><strong>Mechanizm Fallback (ML-KEM):</strong> Jeśli warstwa fizyczna nie pozwala na połączenie kwantowe, protokół generuje klucz algorytmem post-kwantowym ML-KEM.</li>
+          <li><strong>Szyfrowanie:</strong> Dane są szyfrowane wygenerowanym kluczem (symetrycznie).</li>
+          <li><strong>Rotacja:</strong> Cykliczna zmiana klucza w celu minimalizacji ryzyka kompromitacji.</li>
         </ol>
 
-        {/* --- Miejsce na zdjęcie 1 --- */}
-        <div style={{ margin: '20px 0', padding: '20px', border: '1px dashed #ccc', textAlign: 'center' }}>
-          <em>[Miejsce na zdjęcie: Schemat blokowy pokazujący 4 kroki działania protokołu QTCP]</em>
-          {/* <img src="sciezka/do/schematu.png" alt="Schemat działania QTCP" style={{ maxWidth: '100%' }} /> */}
+        <div className="placeholder-img">
+          [MIEJSCE NA ZDJĘCIE: SCHEMAT LOGICZNY KROKÓW 1-4]
         </div>
 
-        <div>
-          <h3>W wersji kwantowej</h3>
-          <p>W tym trybie wykorzystujemy fotony (cząsteczki światła) do przesłania klucza. Największą zaletą fizyki kwantowej jest to, że <strong>nie da się skopiować ani podglądnąć stanu kwantowego bez jego zniszczenia</strong>. Jeśli serwer A wysyła klucz do serwera B, a po drodze haker spróbuje go przechwycić, cząsteczki światła natychmiast ulegną zmianie. Serwery od razu zauważą, że "paczka" była otwierana, odrzucą ten klucz i spróbują ponownie. W przypadku masowego ataku (DDoS), system przechodzi na wersję standardową.</p>
-          
-          {/* --- Miejsce na zdjęcie 2 --- */}
-          <div style={{ margin: '20px 0', padding: '20px', border: '1px dashed #ccc', textAlign: 'center' }}>
-            <em>[Miejsce na zdjęcie: Grafika pokazująca hakera próbującego "złapać" foton, co powoduje jego zniszczenie / zmianę koloru]</em>
-            {/* <img src="sciezka/do/grafiki_haker.png" alt="Atak na foton" style={{ maxWidth: '100%' }} /> */}
-          </div>
+        <h4>Wersja kwantowa</h4>
+        <p>Wykorzystuje przesył fotonów. Zgodnie z zasadą no-cloning i efektem obserwatora, każda próba przechwycenia (pomiaru) klucza przez stronę trzecią powoduje błąd transmisji i zmianę stanu kwantowego. Pozwala to serwerom na natychmiastowe wykrycie podsłuchu i odrzucenie uszkodzonego klucza.</p>
+
+        <div className="placeholder-img">
+          [MIEJSCE NA ZDJĘCIE: FIZYKA PRZESYŁU BB84]
         </div>
         
-        <div>
-          <h3>W wersji standardowej (Fallback)</h3>
-          <p>Gdy fotony nie mogą dotrzeć do celu (np. przez zbyt duże zakłócenia w światłowodzie), protokół przechodzi w tryb standardowy. Używamy wtedy algorytmu ML-KEM. Jest to zaawansowana matematyka (kryptografia postkwantowa), która została zaprojektowana specjalnie po to, aby oprzeć się atakom z użyciem komputerów kwantowych. Dzięki temu, nawet bez fizyki kwantowej, komunikacja pozostaje bezpieczna.</p>
-        </div>
+        <h4>Wersja standardowa (Post-Quantum)</h4>
+        <p>W przypadku braku stabilnego kanału kwantowego (np. zbyt duże tłumienie światłowodu, błędy sprzętowe), QTCP używa ML-KEM. Jest to kryptografia oparta na kratach (lattice-based), obecnie uznawana za odporną na dekryptaż kwantowy.</p>
       </section>
 
       <section id="advantages">
-        <h3>Zalety działania</h3>
+        <h3>Zalety</h3>
         <ul>
-          <li><strong>Odporność na podsłuchiwanie:</strong> Wiemy o każdej próbie przechwycenia klucza w ułamku sekundy.</li>
-          <li><strong>Fizyczne bezpieczeństwo:</strong> Wersja kwantowa nie opiera się na trudnej matematyce, którą kiedyś będzie można rozwiązać. Opiera się na twardych prawach fizyki. Złamanie tego protokołu wymagałoby złamania praw wszechświata.</li>
-          <li><strong>Gwarancja ciągłości:</strong> Dzięki mechanizmowi Fallback, usługa działa zawsze, nawet w niesprzyjających warunkach.</li>
+          <li><strong>Wykrywalność ingerencji:</strong> Próba odczytu klucza fizycznie niszczy jego zawartość.</li>
+          <li><strong>Bezpieczeństwo fizyczne:</strong> Odporność wynikająca z praw mechaniki kwantowej, a nie tylko złożoności obliczeniowej.</li>
+          <li><strong>Wysoka dostępność:</strong> Automatyczne przełączanie między kanałem kwantowym a post-kwantowym.</li>
         </ul>
       </section>
 
       <section id="why-it-works">
-        <h3>Czemu to działa</h3>
-        <div>
-          <h3>W wersji kwantowej</h3>
-          <ul>
-            <li><strong>Obserwacja niszczy stan:</strong> Odczytanie cząstki kwantowej przez kogoś obcego nieodwracalnie ją zmienia (to tzw. zasada nieoznaczoności Heisenberga).</li>
-            <li><strong>Natychmiastowy alarm:</strong> Trzecia strona nie jest w stanie po cichu przeczytać klucza. Każda ingerencja to fizyczny ślad, o którym serwery dowiadują się natychmiast.</li>
-          </ul>
-        </div>
-        <div>
-          <h3>W wersji standardowej</h3>
-          <ul>
-            <li><strong>Standard NIST:</strong> ML-KEM to algorytm zatwierdzony przez amerykański Narodowy Instytut Standardów i Technologii (NIST) jako oficjalny standard ochrony przed zagrożeniami ze strony komputerów kwantowych.</li>
-          </ul>
-        </div>
+        <h3>Podstawy techniczne</h3>
+        <p>Wersja kwantowa bazuje na fakcie, że nie da się zmierzyć stanu kwantowego bez jego zmiany. Wersja standardowa bazuje na standardzie NIST dla algorytmów ML-KEM, które są matematycznie zaprojektowane tak, by komputery kwantowe nie miały nad nimi przewagi obliczeniowej.</p>
       </section>
 
       <section id="use-cases">
-        <h3>Możliwe użycia i edge cases</h3>
-        <p>Sytuacje dla trybu kwantowego i standardowego:</p>
-        <ol>
-          <li><strong>Poprawna komunikacja:</strong> Serwery dogadują się bez problemu, wymieniają klucz kwantowy (BB84), szyfrują nim dane, a co określony czas klucz jest odświeżany.</li>
-          <li><strong>Eavesdropping (Podsłuch):</strong> Haker podłącza się pod światłowód. Stany kwantowe fotonów ulegają zmianie (zapadają się). Odbiorca zauważa błędy w kluczu i go odrzuca. Serwery mogą spróbować wysłać klucz jeszcze raz lub, jeśli atak trwa, przejść na ML-KEM.</li>
-          <li><strong>DDoS (Atak na dostępność):</strong> Sieć kwantowa zostaje zalana śmieciowymi żądaniami lub fizycznie "oślepiona". Protokół od razu porzuca próby kwantowe i przełącza się na stabilny, standardowy model przesyłu matematycznego (ML-KEM), aby utrzymać działanie usługi.</li>
-          <li><strong>Interferencje naturalne:</strong> Zagięty światłowód, skoki temperatur lub mikro-uszkodzenia infrastruktury powodują "zgubienie" fotonów na trasie. System traktuje to podobnie jak atak – nie ufa wybrakowanemu kluczowi i uruchamia procedurę fallback (ML-KEM) do czasu ustabilizowania się łącza fizycznego.</li>
-        </ol>
+        <h3>Scenariusze i Edge Cases</h3>
+        <ul>
+          <li><strong>Transmisja poprawna:</strong> Stabilna wymiana BB84, szyfrowanie AES-GCM kluczem kwantowym.</li>
+          <li><strong>Eavesdropping (Podsłuch):</strong> Wykrycie wysokiego poziomu błędów (QBER), przerwanie procedury BB84, przejście na ML-KEM.</li>
+          <li><strong>DDoS / Atak fizyczny:</strong> Brak możliwości przesyłu fotonów skutkuje natychmiastowym przejściem w tryb standardowy (fallback).</li>
+          <li><strong>Interferencje:</strong> Szum na linii traktowany jest jako zagrożenie bezpieczeństwa – system wymusza renegocjację klucza.</li>
+        </ul>
       </section>
       </div>
     </>
