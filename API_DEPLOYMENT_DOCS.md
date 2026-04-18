@@ -14,9 +14,11 @@ Your Flask backend is configured to accept POST requests at `/api/simulate`. It 
 {
   "alice_payload": "Hello from Alice!",
   "bob_payload": "Hi, Bob here.",
-  "use_eve": true
+  "use_eve": true,
+  "eve_attack_type": "pns"
 }
 ```
+*Note: `eve_attack_type` can be `""` (standard intercept), `"pns"` (Photon Number Splitting attack), or `"ddos"` (Denial of Service attack).*
 
 **JSON Response format:**
 ```json
@@ -35,7 +37,7 @@ Your Flask backend is configured to accept POST requests at `/api/simulate`. It 
 Inside your `frontend/src/Simulation.jsx` (or similar file), you can call the API like this:
 
 ```javascript
-const simulateQuantumExchange = async (aliceMsg, bobMsg, enableEve) => {
+const simulateQuantumExchange = async (aliceMsg, bobMsg, enableEve, attackType = "") => {
   try {
     const response = await fetch('/api/simulate', {
       method: 'POST',
@@ -45,7 +47,8 @@ const simulateQuantumExchange = async (aliceMsg, bobMsg, enableEve) => {
       body: JSON.stringify({
         alice_payload: aliceMsg,
         bob_payload: bobMsg,
-        use_eve: enableEve
+        use_eve: enableEve,
+        eve_attack_type: attackType // "" or "pns" or "ddos"
       })
     });
 

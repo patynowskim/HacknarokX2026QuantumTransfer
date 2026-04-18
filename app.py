@@ -57,6 +57,7 @@ def simulate():
     alice_payload = data.get('alice_payload', 'Hello from Alice')
     bob_payload = data.get('bob_payload', 'Hello from Bob')
     use_eve = data.get('use_eve', False)
+    eve_attack_type = data.get('eve_attack_type', '')
     
     output_list = []
     threads = []
@@ -79,8 +80,13 @@ def simulate():
     eve_process = None
     if use_eve:
         eve_cmd = ["./build/eve", "127.0.0.1", alice_port, bob_port]
+        if eve_attack_type == "pns":
+            eve_cmd.append("--pns")
+        elif eve_attack_type == "ddos":
+            eve_cmd.append("--ddos")
+            
         # Eve runs continuously, we don't wait for her to finish but we should read her logs
-        print("[EVE] Starting...")
+        print(f"[EVE] Starting... (Attack Type: {eve_attack_type if eve_attack_type else 'standard intercepts'})")
         eve_process = subprocess.Popen(
             eve_cmd,
             stdout=subprocess.PIPE,
