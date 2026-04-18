@@ -1,7 +1,3 @@
-Oto propozycja profesjonalnie sformatowanego pliku `README.md`, który łączy dokumentację techniczną, instrukcję API oraz przewodnik po CLI w jedną, spójną całość.
-
----
-
 # Quantum Transfer Simulation
 
 Witaj w projekcie symulacji transferu kwantowego. Poniżej znajdziesz kompletny przewodnik, jak skompilować narzędzia, uruchomić interfejs webowy lub korzystać z symulacji bezpośrednio przez terminal.
@@ -44,7 +40,7 @@ Możesz przeprowadzać symulacje ręcznie, uruchamiając poszczególne komponent
 #### Przykład: Standardowa wymiana
 ```bash
 # Terminal 1: Alice
-./alice.exe 0.0.0.0 8080 "A: DUPA WOLOWA"
+./alice.exe 0.0.0.0 8080 "A: SZYNKA WOLOWA"
 
 # Terminal 2: Bob
 ./bob.exe 127.0.0.1 8080 "B: TEST TEST"
@@ -52,14 +48,14 @@ Możesz przeprowadzać symulacje ręcznie, uruchamiając poszczególne komponent
 
 #### Przykład: Eavesdropping (Podsłuch)
 ```bash
-./alice.exe 0.0.0.0 8080 "A: DUPA WOLOWA"
+./alice.exe 0.0.0.0 8080 "A: SZYNKA WOLOWA"
 ./eve.exe 127.0.0.1 8080 8081
 ./bob.exe 127.0.0.1 8081 "B: TEST TEST"
 ```
 
 #### Przykład: Atak PNS
 ```bash
-./alice.exe 0.0.0.0 8080 "A: DUPA WOLOWA"
+./alice.exe 0.0.0.0 8080 "A: SZYNKA WOLOWA"
 ./eve.exe 127.0.0.1 8080 8081 --pns
 ./bob.exe 127.0.0.1 8081 "B: TEST TEST"
 ```
