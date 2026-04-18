@@ -39,9 +39,16 @@ def run_node(role, cmd, payload_to_send, output_list):
     t = threading.Thread(target=read_telemetry)
     t.start()
     
+    try:
+        process.wait(timeout=5.5)
+    except subprocess.TimeoutExpired:
+        print(f"[{role.upper()}] Timeout reached! Killing process to prevent lockup...")
+        process.terminate()
+        time.sleep(0.5)
+        process.kill()
+        
     received_data = process.stdout.read()
-    process.wait()
-    t.join()
+    t.join(timeout=1.0)
     
     if received_data:
         output_list.append({"role": role, "type": "stdout", "msg": received_data.strip()})
