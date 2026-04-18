@@ -72,8 +72,8 @@ int main(int argc, char* argv[]) {
         std::cerr << "\n--- [ ALICE ] STARTING QUANTUM BB84 KEY EXCHANGE ---\n";
         bool bb84_success = false;
 
-        std::vector<uint8_t> bits = bb84::generate_bits(bb84::NUM_QUBITS);
-        std::vector<uint8_t> bases = bb84::generate_bits(bb84::NUM_QUBITS); // 0=Z, 1=X
+        std::vector<uint8_t> bits = bb84::generate_bits_qrng(bb84::NUM_QUBITS);
+        std::vector<uint8_t> bases = bb84::generate_bits_qrng(bb84::NUM_QUBITS); // 0=Z, 1=X
         std::vector<bb84::Qubit> quantum_channel = bb84::encode(bits, bases);
 
         // 1. Send Qubits over Quantum Channel (Simulated via TCP)
