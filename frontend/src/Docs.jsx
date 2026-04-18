@@ -8,8 +8,10 @@ function Docs() {
     <>
     <div className='navSection'><Link to='/'>
       <img src='logo.png' alt='logo, nawigacja do strony głównej' /></Link>
+      <h2>Docs</h2>
+        <hr />
       <ul>
-        <h2>Spis treści</h2>
+        
         <li><a href="#intro">Wstęp: Komputery kwantowe</a></li>
         <li><a href="#protocol">Protokół QTCP</a></li>
         <li><a href="#purpose">Cel projektu</a></li>

@@ -16,6 +16,11 @@
   border-right: 1px solid #ccc;
   z-index: 1000;
 }
+.simulationNavSection img {
+  width: 100%;
+  height: auto;
+  margin-bottom: 20px;
+}
 
 .simulationNavSection h2 {
   margin-top: 0;

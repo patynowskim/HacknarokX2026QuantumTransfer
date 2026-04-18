@@ -18,6 +18,7 @@ section p {
   padding: 10px;
   overflow-y: auto;
   border-right: 1px solid #ccc;
+  z-index: 1000;
 }
 .navSection img {
   width: 100%;
@@ -32,6 +33,7 @@ section p {
 .navSection ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .navSection li {
@@ -41,13 +43,21 @@ section p {
 .navSection a {
   text-decoration: none;
   color: #333;
+  display: block;
+  padding: 8px;
+  border-radius: 4px;
+  transition: all 0.3s;
 }
 
 .navSection a:hover {
   color: #007bff;
+  background-color: #e9ecef;
 }
 
 .documentation {
   margin-left: 220px;
   padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+  background: #ffffff;
 }

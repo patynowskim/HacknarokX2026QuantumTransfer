@@ -13,6 +13,8 @@ function Simulation() {
   return (
     <div className="simulationContainer">
       <div className="simulationNavSection">
+        <Link to='/'>
+      <img src='logo.png' alt='logo, nawigacja do strony głównej' /></Link>
         <h2>Symulacja</h2>
         <hr />
         <ul>
