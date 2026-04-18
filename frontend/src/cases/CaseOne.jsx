@@ -1,11 +1,19 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import './CaseOne.css';
+
 function CaseOne() {
     const [packets, setPackets] = useState([]);
     const [logs, setLogs] = useState([{ role: 'System', msg: 'Oczekuję na rozpoczęcie symulacji...' }]);
     const [isSimulating, setIsSimulating] = useState(false);
 
+    const logsEndRef = useRef(null);
+
     const API_URL = 'https://patynow.ski/api/simulate';
+
+    useEffect(() => {
+        logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [logs]);
+
     const startSimulation = async () => {
         setIsSimulating(true);
         setLogs([{ role: 'System', msg: 'Inicjowanie transmisji kwantowej...' }]);
@@ -17,7 +25,7 @@ function CaseOne() {
                 body: JSON.stringify({
                     alice_payload: "Tajny klucz od Alice",
                     bob_payload: "Zrozumiałem, Bob.",
-                    use_eve: false
+                    scenario: "normal" 
                 })
             });
 
@@ -42,20 +50,29 @@ function CaseOne() {
         const timer = setInterval(() => {
             if (index < logArray.length) {
                 const currentLog = logArray[index];
+                setLogs(prev => [...prev, currentLog]);
 
-                setLogs(prev => [...prev, currentLog].slice(-6));
+                const msgLower = currentLog.msg.toLowerCase();
+                const isSendingEvent =
+                    msgLower.includes('wysłano') ||
+                    msgLower.includes('send') ||
+                    msgLower.includes('sent') ||
+                    msgLower.includes('wysyła') ||
+                    msgLower.includes('przesłano');
 
-                if (currentLog.role === 'Alice') {
-                    shootPacket('AtoB');
-                } else if (currentLog.role === 'Bob') {
-                    shootPacket('BtoA');
+                if (isSendingEvent) {
+                    if (currentLog.role === 'Alice') {
+                        shootPacket('AtoB');
+                    } else if (currentLog.role === 'Bob') {
+                        shootPacket('BtoA');
+                    }
                 }
 
                 index++;
             } else {
                 clearInterval(timer);
                 setIsSimulating(false);
-                setLogs(prev => [...prev, { role: 'System', msg: '--- KONIEC SYMULACJI ---' }].slice(-6));
+                setLogs(prev => [...prev, { role: 'System', msg: '--- KONIEC SYMULACJI ---' }]);
             }
         }, 800);
     };
@@ -72,15 +89,6 @@ function CaseOne() {
     return (
         <div className="d-flex flex-column w-100 h-100 bg-dark" style={{ minHeight: '400px' }}>
             <h1 className='p-5 text-white w-100 d-flex justify-content-center align-items-center'>Case One - Quantum Transfer</h1>
-            <div className="w-10 h-10 d-flex justify-content-center align-items-center" style={{ zIndex: 5 }}>
-                <button
-                    className="btn btn-warning shadow-lg px-4 py-2"
-                    onClick={startSimulation}
-                    disabled={isSimulating}
-                >
-                    {isSimulating ? "Trwa symulacja..." : "Rozpocznij Symulację"}
-                </button>
-            </div>
 
             <div className="d-flex justify-content-between align-items-center flex-grow-1 px-5 w-100">
 
@@ -92,6 +100,16 @@ function CaseOne() {
                 </div>
 
                 <div className="flex-grow-1 position-relative h-100">
+
+                    <div className="position-absolute w-100 h-20 d-flex flex-column justify-content-center align-items-center gap-3" style={{ zIndex: 5 }}>
+                        <button
+                            className="btn btn-warning shadow-lg px-4 py-2"
+                            onClick={startSimulation}
+                            disabled={isSimulating}
+                        >
+                            {isSimulating ? "Trwa symulacja..." : "Rozpocznij Symulację"}
+                        </button>
+                    </div>
 
                     <svg
                         className="position-absolute w-100 h-100"
@@ -118,7 +136,7 @@ function CaseOne() {
                 </div>
             </div>
 
-            <div className="w-100 bg-black m-0 p-3 consoleP overflow-hidden d-flex flex-column justify-content-end" style={{ height: '15%' }}>
+            <div className="w-100 bg-black m-0 p-3 consoleP overflow-auto d-flex flex-column" style={{ height: '25%' }}>
                 {logs.map((logObj, index) => {
                     let colorClass = "text-secondary";
 
@@ -129,16 +147,17 @@ function CaseOne() {
                     } else if (logObj.role === 'Eve') {
                         colorClass = "text-danger";
                     }
+
                     const isStdout = logObj.type === 'stdout';
 
                     return (
-                        <div key={index} className={`${colorClass} ${isStdout ? 'fw-bold fs-6' : ''}`} style={{ fontSize: '0.9rem', fontFamily: 'monospace' }}>
+                        <div key={index} className={`${colorClass} ${isStdout ? 'fw-bold fs-6' : ''}`} style={{ fontSize: '0.9rem', fontFamily: 'monospace', marginBottom: '4px' }}>
                             {logObj.msg}
                         </div>
                     );
                 })}
+                <div ref={logsEndRef} />
             </div>
-
         </div>
     );
 }
