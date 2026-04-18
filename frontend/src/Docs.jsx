@@ -5,9 +5,10 @@ function Docs() {
 
   return (
     <>
-    <div className='navSection'>
-      <h2>Nawigacja</h2>
+    <div className='navSection'><a href='./'>
+      <img src='logo.png' alt='logo, nawigacja do strony głównej' /></a>
       <ul>
+        <h2>Spis treści</h2>
         <li><a href="#intro">Intro do komp kwantowych</a></li>
         <li><a href="#protocol">Protokół QTCP</a></li>
         <li><a href="#purpose">Zamysł projektu</a></li>
@@ -90,5 +91,6 @@ function Docs() {
     </>
   )
 }
+
 
 export default Docs

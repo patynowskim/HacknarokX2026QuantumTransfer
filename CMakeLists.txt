@@ -3,7 +3,29 @@ project(MLKEM_Exchange C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Fetch liboqs automatically
+# 1. Configuration Toggle
+option(FORCE_GENERIC "Force generic build" OFF)
+
+if(FORCE_GENERIC)
+    message(STATUS "Generic build forced. Using OQS_OPT_TARGET=generic")
+    
+    set(OQS_OPT_TARGET "generic" CACHE STRING "" FORCE)
+    set(OQS_DIST_BUILD OFF CACHE BOOL "" FORCE)
+    set(OQS_BUILD_ONLY_LIB ON CACHE BOOL "" FORCE)
+
+    set(OQS_ENABLE_AES_NI OFF CACHE BOOL "" FORCE)
+    set(OQS_ENABLE_AVX OFF CACHE BOOL "" FORCE)
+    set(OQS_ENABLE_AVX2 OFF CACHE BOOL "" FORCE)
+    set(OQS_ENABLE_AVX512 OFF CACHE BOOL "" FORCE)
+    set(OQS_ENABLE_SSE2 OFF CACHE BOOL "" FORCE)
+    set(OQS_ENABLE_SHA3_x86_64_AVX2 OFF CACHE BOOL "" FORCE)
+    
+    add_compile_definitions(OQS_PORTABLE_BUILD=1)
+endif()
+
+set(OQS_USE_OPENSSL OFF CACHE BOOL "" FORCE)
+
+# 2. Fetch and Configure
 include(FetchContent)
 FetchContent_Declare(
   liboqs
@@ -11,23 +33,23 @@ FetchContent_Declare(
   GIT_TAG main
 )
 
-# Configure liboqs for minimal build without OpenSSL or tests to speed up compile
-set(OQS_BUILD_ONLY_LIB ON CACHE BOOL "" FORCE)
-set(OQS_USE_OPENSSL OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(liboqs)
 
-# Alice (Server)
-add_executable(alice alice.cpp)
-target_link_libraries(alice PRIVATE oqs ws2_32)
-target_include_directories(alice PRIVATE ${liboqs_SOURCE_DIR}/src)
+# 3. Setup targets
+function(setup_oqs_target target)
+    add_executable(${target} ${target}.cpp)
+    target_link_libraries(${target} PRIVATE oqs)
+    
+    if(WIN32)
+        target_link_libraries(${target} PRIVATE ws2_32)
+    endif()
+    
+    target_include_directories(${target} PRIVATE 
+        ${liboqs_SOURCE_DIR}/src 
+        ${liboqs_BINARY_DIR}/include
+    )
+endfunction()
 
-# Bob (Client)
-add_executable(bob bob.cpp)
-target_link_libraries(bob PRIVATE oqs ws2_32)
-target_include_directories(bob PRIVATE ${liboqs_SOURCE_DIR}/src)
-
-
-# Eve (Evesdropper)
-add_executable(eve eve.cpp)
-target_link_libraries(eve PRIVATE oqs ws2_32)
-target_include_directories(eve PRIVATE ${liboqs_SOURCE_DIR}/src)
+setup_oqs_target(alice)
+setup_oqs_target(bob)
+setup_oqs_target(eve)

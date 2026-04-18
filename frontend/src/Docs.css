@@ -19,6 +19,11 @@ section p {
   overflow-y: auto;
   border-right: 1px solid #ccc;
 }
+.navSection img {
+  width: 100%;
+  height: auto;
+  margin-bottom: 20px;
+}
 
 .navSection h2 {
   margin-top: 0;

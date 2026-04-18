@@ -1,12 +1,24 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#define NOMINMAX
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include "bb84.hpp"
+#ifdef _WIN32
+  #define NOMINMAX
+  #include <winsock2.h>
+  #include <ws2tcpip.h>
+  #pragma comment(lib, "Ws2_32.lib")
+#else
+  #include <sys/socket.h>
+  #include <arpa/inet.h>
+  #include <unistd.h>
+  #include <netdb.h>
+  #include <algorithm>
+  #define SOCKET int
+  #define INVALID_SOCKET (-1)
+  #define SOCKET_ERROR (-1)
+  #define closesocket close
+#endif
 
-#pragma comment(lib, "Ws2_32.lib")
+#include "bb84.hpp"
 
 void relay_data(SOCKET from, SOCKET to, const std::string& label, bool modify_quantum = false) {
     char buffer[4096];
@@ -31,8 +43,10 @@ void relay_data(SOCKET from, SOCKET to, const std::string& label, bool modify_qu
 }
 
 int main(int argc, char* argv[]) {
+#ifdef _WIN32
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2, 2), &wsaData);
+#endif
 
     std::string alice_ip = "127.0.0.1";
     int alice_port = 8080;
@@ -84,6 +98,8 @@ int main(int argc, char* argv[]) {
 
     closesocket(to_alice);
     closesocket(to_bob);
+#ifdef _WIN32
     WSACleanup();
+#endif
     return 0;
 }
