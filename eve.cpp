@@ -8,7 +8,14 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-void relay_data(SOCKET from, SOCKET to, const std::string& label, bool modify_quantum = false, bool pns_attack = false) {
+void relay_data(
+    SOCKET from,
+    SOCKET to,
+    const std::string& label,
+    bool modify_quantum = false,
+    bool pns_attack = false,
+    bool ddos_attack = false
+) {
     char buffer[4096];
     int bytes = recv(from, buffer, sizeof(buffer), 0);
     if (bytes > 0) {
@@ -45,6 +52,24 @@ void relay_data(SOCKET from, SOCKET to, const std::string& label, bool modify_qu
         }
         std::cerr << "[Eve] Relaying " << bytes << " bytes from " << label << "\n";
         send(to, buffer, bytes, 0);
+
+        // DDoS implementation
+        if (ddos_attack) {
+            std::cerr << "[Eve] DDoS: flooding channel...\n";
+
+            for (int i = 0; i < 5; i++) {
+                send(to, buffer, bytes, 0);
+            }
+
+            char junk[512];
+            for (int i = 0; i < 512; i++) {
+                junk[i] = rand() % 256;
+            }
+
+            for (int i = 0; i < 5; i++) {
+                send(to, junk, sizeof(junk), 0);
+            }
+        }
     }
 }
 
@@ -61,11 +86,12 @@ int main(int argc, char* argv[]) {
     if (argc >= 4) listen_port = std::stoi(argv[3]);
 
     bool pns_attack = false;
+    bool ddos_attack = false;
 
     for (int i = 1; i < argc; i++) {
-        if (std::string(argv[i]) == "--pns") {
-            pns_attack = true;
-        }
+        std::string arg = argv[i];
+        if (arg == "--pns") pns_attack = true;
+        if (arg == "--ddos") ddos_attack = true;
     }
 
     // 1. Connect to Alice
@@ -93,7 +119,7 @@ int main(int argc, char* argv[]) {
     SOCKET to_bob = accept(listen_sock, nullptr, nullptr);
 
     // 3. Intercept Phase 1: The Qubits (Alice -> Bob)
-    relay_data(to_alice, to_bob, "Alice (Qubits)", true, pns_attack);
+    relay_data(to_alice, to_bob, "Alice (Qubits)", true, pns_attack, ddos_attack);
 
     // 4. Relay all subsequent traffic (Classical Channels)
     while (true) {

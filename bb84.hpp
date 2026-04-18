@@ -7,6 +7,7 @@ namespace bb84 {
     const int NUM_QUBITS = 1024;
     const int CHECK_BITS = 32;
 
+    //Decoy States for Photon Number Split attack
     enum PulseType { SIGNAL = 0, DECOY = 1, VACUUM = 2 };
 
     #pragma pack(push, 1)
