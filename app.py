@@ -3,6 +3,14 @@ from flask_cors import CORS
 import subprocess
 import threading
 import time
+import socket
+
+def get_free_port():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('127.0.0.1', 0))
+    port = s.getsockname()[1]
+    s.close()
+    return port
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend
@@ -54,10 +62,10 @@ def simulate():
     threads = []
     
     # Ports
-    alice_port = "9090"
-    bob_port = "9090"
+    alice_port = str(get_free_port())
+    bob_port = alice_port
     if use_eve:
-        bob_port = "9091" # Bob connects to Eve
+        bob_port = str(get_free_port()) # Bob connects to Eve
         
     # Start Alice
     alice_cmd = ["./build/alice", "127.0.0.1", alice_port]
