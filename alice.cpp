@@ -46,6 +46,14 @@ int main(int argc, char* argv[]) {
         custom_message = std::string(begin, end);
     }
 
+    bool force_mlkem = false;
+
+    for (int i = 1; i < argc; i++) {
+        if (std::string(argv[i]) == "--mlkem") {
+            force_mlkem = true;
+        }
+    }
+
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2, 2), &wsaData);
 
@@ -79,17 +87,20 @@ int main(int argc, char* argv[]) {
             std::cerr << "[Alice] Accepted connection.\n";
 
             // Simple anti-ddos defence
-#ifdef _WIN32
+            #ifdef _WIN32
             DWORD timeout = 5000;
             setsockopt(conn, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
             setsockopt(conn, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
-#else
+            #else
             struct timeval tv;
             tv.tv_sec = 5;
             tv.tv_usec = 0;
             setsockopt(conn, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
             setsockopt(conn, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof(tv));
-#endif
+            #endif
+
+            uint8_t mode = force_mlkem ? 0x02 : 0x01;
+            send(conn, (const char*)&mode, 1, 0);
 
             // Session Key for Payload Encryption
             std::vector<uint8_t> session_key;
@@ -97,111 +108,121 @@ int main(int argc, char* argv[]) {
             // ==========================================
             // PHASE 1: QUANTUM DIRECT BB84
             // ==========================================
-            std::cerr << "\n--- [ ALICE ] STARTING QUANTUM BB84 KEY EXCHANGE ---\n";
             bool bb84_success = false;
+            if (!force_mlkem) {
+                std::cerr << "\n--- [ ALICE ] STARTING QUANTUM BB84 KEY EXCHANGE ---\n";
 
-            std::vector<uint8_t> bits = bb84::generate_bits_qrng(bb84::NUM_QUBITS);
-            std::vector<uint8_t> bases = bb84::generate_bits_qrng(bb84::NUM_QUBITS);
-            std::vector<bb84::Qubit> quantum_channel(bb84::NUM_QUBITS);
-            std::vector<uint8_t> reveal_types(bb84::NUM_QUBITS);
+                std::vector<uint8_t> bits = bb84::generate_bits_qrng(bb84::NUM_QUBITS);
+                std::vector<uint8_t> bases = bb84::generate_bits_qrng(bb84::NUM_QUBITS);
+                std::vector<bb84::Qubit> quantum_channel(bb84::NUM_QUBITS);
+                std::vector<uint8_t> reveal_types(bb84::NUM_QUBITS);
 
-            // 1. Prepare Qubits with Decoy States
-            for(int i = 0; i < bb84::NUM_QUBITS; i++) {
-                quantum_channel[i].value = bits[i];
-                quantum_channel[i].basis = bases[i];
-                quantum_channel[i].pulse_type = bb84::select_pulse_type(); 
-                
-                reveal_types[i] = quantum_channel[i].pulse_type;
+                // 1. Prepare Qubits with Decoy States
+                for(int i = 0; i < bb84::NUM_QUBITS; i++) {
+                    quantum_channel[i].value = bits[i];
+                    quantum_channel[i].basis = bases[i];
+                    quantum_channel[i].pulse_type = bb84::select_pulse_type(); 
+                    
+                    reveal_types[i] = quantum_channel[i].pulse_type;
 
-                if (quantum_channel[i].pulse_type == bb84::VACUUM) {
-                    quantum_channel[i].value = 0; 
+                    if (quantum_channel[i].pulse_type == bb84::VACUUM) {
+                        quantum_channel[i].value = 0; 
+                    }
                 }
-            }
 
-            // 2. Send Qubits (ONLY ONCE)
-            std::cerr << "[Alice] Sending " << bb84::NUM_QUBITS << " entangled qubits...\n";
-            send(conn, (const char*)quantum_channel.data(), quantum_channel.size() * sizeof(bb84::Qubit), 0);
+                // 2. Send Qubits (ONLY ONCE)
+                std::cerr << "[Alice] Sending " << bb84::NUM_QUBITS << " entangled qubits...\n";
+                send(conn, (const char*)quantum_channel.data(), quantum_channel.size() * sizeof(bb84::Qubit), 0);
 
-            // 3. Classical Channel: Send Alice's bases
-            std::cerr << "[Alice] Sending Classical Bases...\n";
-            send(conn, (const char*)bases.data(), bases.size(), 0);
+                // 3. Classical Channel: Send Alice's bases
+                std::cerr << "[Alice] Sending Classical Bases...\n";
+                send(conn, (const char*)bases.data(), bases.size(), 0);
 
-            // 4. Receive common matching bases indices from Bob
-            int common_count = 0;
-            if (!recv_all(conn, (uint8_t*)&common_count, sizeof(common_count))) {
-                std::cerr << "[Alice] Failed to receive common_count\n";
-                closesocket(conn);
-                continue;
-            }
-            if (common_count < 0 || common_count > bb84::NUM_QUBITS) {
-                std::cerr << "[Alice] Invalid common_count (DDoS?)\n";
-                closesocket(conn);
-                continue;
-            }
-            
-            std::vector<int> common_indices(common_count);
-            if (!recv_all(conn,
-                (uint8_t*)common_indices.data(),
-                common_count * sizeof(int))) {
-
-                std::cerr << "[Alice] Failed to receive indices\n";
-                closesocket(conn);
-                continue;
-            }
-            
-            std::cerr << "[Alice] Bob found " << common_count << " matching bases.\n";
-            
-            std::vector<uint8_t> sifted_key;
-            for (int idx : common_indices) {
-                if (quantum_channel[idx].pulse_type == bb84::VACUUM)
+                // 4. Receive common matching bases indices from Bob
+                int common_count = 0;
+                if (!recv_all(conn, (uint8_t*)&common_count, sizeof(common_count))) {
+                    std::cerr << "[Alice] Failed to receive common_count\n";
+                    closesocket(conn);
                     continue;
+                }
+                if (common_count < 0 || common_count > bb84::NUM_QUBITS) {
+                    std::cerr << "[Alice] Invalid common_count (DDoS?)\n";
+                    closesocket(conn);
+                    continue;
+                }
+                
+                std::vector<int> common_indices(common_count);
+                if (!recv_all(conn,
+                    (uint8_t*)common_indices.data(),
+                    common_count * sizeof(int))) {
 
-                sifted_key.push_back(bits[idx]);
-            }
+                    std::cerr << "[Alice] Failed to receive indices\n";
+                    closesocket(conn);
+                    continue;
+                }
+                
+                std::cerr << "[Alice] Bob found " << common_count << " matching bases.\n";
+                
+                std::vector<uint8_t> sifted_key;
+                for (int idx : common_indices) {
+                    if (quantum_channel[idx].pulse_type == bb84::VACUUM)
+                        continue;
 
-            // 5. Send Validation Bits
-            int check_bits_count = std::min((int)sifted_key.size(), bb84::CHECK_BITS);
-            if (sifted_key.size() < check_bits_count) {
-                std::cerr << "[Alice] Protocol desync detected\n";
-                closesocket(conn);
-                continue;
-            }
-            std::vector<uint8_t> validation_bits(sifted_key.begin(), sifted_key.begin() + check_bits_count);
-            send(conn, (const char*)&check_bits_count, sizeof(check_bits_count), 0);
-            send(conn, (const char*)validation_bits.data(), check_bits_count, 0);
+                    sifted_key.push_back(bits[idx]);
+                }
 
-            // 6. Send Pulse Types
-            send(conn, (const char*)reveal_types.data(), reveal_types.size(), 0);
+                // 5. Send Validation Bits
+                int check_bits_count = std::min((int)sifted_key.size(), bb84::CHECK_BITS);
+                if (sifted_key.size() < check_bits_count) {
+                    std::cerr << "[Alice] Protocol desync detected\n";
+                    closesocket(conn);
+                    continue;
+                }
+                std::vector<uint8_t> validation_bits(sifted_key.begin(), sifted_key.begin() + check_bits_count);
+                send(conn, (const char*)&check_bits_count, sizeof(check_bits_count), 0);
+                send(conn, (const char*)validation_bits.data(), check_bits_count, 0);
 
-            // 7. Receive Validation Result from Bob
-            uint8_t validation_result = 0;
-            if (!recv_all(conn, &validation_result, 1)) {
-                std::cerr << "[Alice] Failed to receive validation result\n";
-                closesocket(conn);
-                continue;
-            }
+                // 6. Send Pulse Types
+                send(conn, (const char*)reveal_types.data(), reveal_types.size(), 0);
 
-            print_hex("[DEBUG] Sifted Key: ", sifted_key.data(), sifted_key.size());
+                // 7. Receive Validation Result from Bob
+                uint8_t validation_result = 0;
+                if (!recv_all(conn, &validation_result, 1)) {
+                    std::cerr << "[Alice] Failed to receive validation result\n";
+                    closesocket(conn);
+                    continue;
+                }
 
-            if (validation_result == 1) {
-                std::cerr << "[Alice] BB84 SUCCESS! No eavesdropper detected.\n";
-                bb84_success = true;
-                std::vector<uint8_t> final_key(
-                    sifted_key.begin() + check_bits_count,
-                    sifted_key.end()
-                );
+                print_hex("[DEBUG] Sifted Key: ", sifted_key.data(), sifted_key.size());
 
-                session_key = bb84::universal_hash(final_key);
-                print_hex("[DEBUG] Final Session Key: ", session_key.data(), session_key.size());
+                if (validation_result == 1) {
+                    std::cerr << "[Alice] BB84 SUCCESS! No eavesdropper detected.\n";
+                    bb84_success = true;
+                    std::vector<uint8_t> final_key(
+                        sifted_key.begin() + check_bits_count,
+                        sifted_key.end()
+                    );
+
+                    session_key = bb84::universal_hash(final_key);
+                    print_hex("[DEBUG] Final Session Key: ", session_key.data(), session_key.size());
+                } else {
+                    std::cerr << "\n[!] WARNING [!] BB84 EAVESDROPPER DETECTED OR HIGH NOISE!\n";
+                    bb84_success = false;
+                }
             } else {
-                std::cerr << "\n[!] WARNING [!] BB84 EAVESDROPPER DETECTED OR HIGH NOISE!\n";
+                std::cerr << "[Alice] ML-KEM forced mode enabled, skipping BB84.\n";
                 bb84_success = false;
             }
             
             // ==========================================
             // PHASE 2: FALLBACK TO ML-KEM
             // ==========================================
-            if (!bb84_success) {
+            if (!bb84_success || force_mlkem) {
+                uint8_t sync = 0x55;
+                send(conn, (const char*)&sync, 1, 0);
+
+                uint8_t mlkem_flag = 1;
+                send(conn, (const char*)&mlkem_flag, 1, 0);
                 std::cerr << "\n--- [ ALICE ] STARTING ML-KEM FALLBACK ---\n";
                 // 1. Send Public Key
                 send(conn, (const char*)ek.data(), ek.size(), 0);
@@ -210,29 +231,20 @@ int main(int argc, char* argv[]) {
                 // 2. Duplex Read (Wait for Bob's Ciphertext)
                 std::cerr << "[Alice] Waiting for incoming data...\n";
                 std::vector<uint8_t> ciphertext(kem->length_ciphertext);
-                
-                int total_received = 0;
-                int remaining = kem->length_ciphertext;
-                
-                while (remaining > 0) {
-                    int bytes_read = recv(conn, (char*)ciphertext.data() + total_received, remaining, 0);
-                    if (bytes_read <= 0) break;
-                    total_received += bytes_read;
-                    remaining -= bytes_read;
+
+                if (!recv_all(conn, ciphertext.data(), ciphertext.size())) {
+                    std::cerr << "[Alice] Failed to receive full ML-KEM ciphertext\n";
+                    closesocket(conn);
+                    continue;
                 }
 
-                if (total_received == kem->length_ciphertext) {
-                    std::vector<uint8_t> shared_secret(kem->length_shared_secret);
-                    OQS_KEM_decaps(kem, shared_secret.data(), ciphertext.data(), dk.data());
-                    
-                    std::cerr << "[Alice] Key Exchange Complete!\n";
-                    print_hex("[Alice] Shared ML-KEM Secret: ", shared_secret.data(), shared_secret.size());
-                    
-                    // Establish ML-KEM output as AES-256 Symmetric Fallback Key
-                    session_key = shared_secret;
-                } else {
-                    std::cerr << "[Alice] Error: Corrupt ML-KEM Data.\n";
-                }
+                std::vector<uint8_t> shared_secret(kem->length_shared_secret);
+                OQS_KEM_decaps(kem, shared_secret.data(), ciphertext.data(), dk.data());
+
+                std::cerr << "[Alice] Key Exchange Complete!\n";
+                print_hex("[Alice] Shared ML-KEM Secret: ", shared_secret.data(), shared_secret.size());
+
+                session_key = shared_secret;
             }
 
             std::cerr << "\n--- SECURE SYMMETRIC ENCRYPTED SESSION ESTABLISHED ---\n";
