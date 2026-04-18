@@ -15,7 +15,7 @@ namespace bb84 {
     //QRNG instead of default RNG to prevent reconstructing pseudo-number generator
     inline uint8_t qrng_bit() {
         QuantumCircuit qc(1);
-        qc.apply_gate(QG::H, 0); 
+        qc.apply_gate(QG::H, 0);
         
         auto probs = qc.probabilities();
         static std::random_device rd;
