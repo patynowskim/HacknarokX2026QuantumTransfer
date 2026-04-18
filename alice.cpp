@@ -122,6 +122,9 @@ int main(int argc, char* argv[]) {
         
         std::vector<uint8_t> sifted_key;
         for (int idx : common_indices) {
+            if (quantum_channel[idx].pulse_type == bb84::VACUUM)
+                continue;
+
             sifted_key.push_back(bits[idx]);
         }
 
@@ -137,6 +140,23 @@ int main(int argc, char* argv[]) {
         // 7. Receive Validation Result from Bob
         uint8_t validation_result = 0;
         recv(conn, (char*)&validation_result, 1, 0);
+
+        print_hex("[DEBUG] Sifted Key: ", sifted_key.data(), sifted_key.size());
+
+        if (validation_result == 1) {
+            std::cerr << "[Alice] BB84 SUCCESS! No eavesdropper detected.\n";
+            bb84_success = true;
+            std::vector<uint8_t> final_key(
+                sifted_key.begin() + check_bits_count,
+                sifted_key.end()
+            );
+
+            session_key = bb84::universal_hash(final_key);
+            print_hex("[DEBUG] Final Session Key: ", session_key.data(), session_key.size());
+        } else {
+            std::cerr << "\n[!] WARNING [!] BB84 EAVESDROPPER DETECTED OR HIGH NOISE!\n";
+            bb84_success = false;
+        }
         
         // ==========================================
         // PHASE 2: FALLBACK TO ML-KEM

@@ -9,11 +9,13 @@ namespace bb84 {
 
     enum PulseType { SIGNAL = 0, DECOY = 1, VACUUM = 2 };
 
+    #pragma pack(push, 1)
     struct Qubit {
         uint8_t value;
         uint8_t basis;
         uint8_t pulse_type;
     };
+    #pragma pack(pop)
 
     inline uint8_t select_pulse_type() {
         static std::random_device rd;
@@ -84,26 +86,27 @@ namespace bb84 {
             auto probs = qc.probabilities();
             double p1 = (probs.count("1")) ? probs.at("1") : 0.0;
 
-            if (p1 > 0.9) measured[i] = 1;
-            else if (p1 < 0.1) measured[i] = 0;
-            else measured[i] = random_bit();
+            if (qubits[i].basis == bob_bases[i]) {
+                measured[i] = qubits[i].value;
+            } else {
+                measured[i] = qrng_bit();
+            }
         }
         return measured;
     }
 
     inline std::vector<uint8_t> universal_hash(const std::vector<uint8_t>& input_bits) {
         std::vector<uint8_t> output_key(32, 0);
-        if (input_bits.size() < 256) return input_bits;
-
-        std::mt19937 gen(42); 
-        std::uniform_int_distribution<> dis(0, 1);
-
+        
         for (int i = 0; i < 256; ++i) {
             uint8_t bit_sum = 0;
+            std::mt19937 gen(1337 + i); 
+            
             for (size_t j = 0; j < input_bits.size(); j++) {
-                uint8_t matrix_element = dis(gen);
+                uint8_t matrix_element = gen() % 2; 
                 bit_sum ^= (input_bits[j] & matrix_element);
             }
+            
             if (bit_sum) {
                 output_key[i / 8] |= (1 << (i % 8));
             }
