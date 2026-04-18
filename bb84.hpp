@@ -7,10 +7,23 @@ namespace bb84 {
     const int NUM_QUBITS = 1024;
     const int CHECK_BITS = 32;
 
+    enum PulseType { SIGNAL = 0, DECOY = 1, VACUUM = 2 };
+
     struct Qubit {
         uint8_t value;
         uint8_t basis;
+        uint8_t pulse_type;
     };
+
+    inline uint8_t select_pulse_type() {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        std::uniform_real_distribution<> dis(0.0, 1.0);
+        double r = dis(gen);
+        if (r < 0.70) return SIGNAL;
+        if (r < 0.90) return DECOY;
+        return VACUUM;
+    }
 
     //QRNG instead of default RNG to prevent reconstructing pseudo-number generator
     inline uint8_t qrng_bit() {

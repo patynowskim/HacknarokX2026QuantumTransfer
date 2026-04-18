@@ -119,13 +119,24 @@ int main(int argc, char* argv[]) {
     }
 
     // 6. Receive Validation Segment from Alice to check Eavesdropping
-    int check_bits_count;
+    int check_bits_count = 0;
     recv(client_fd, (char*)&check_bits_count, sizeof(check_bits_count), 0);
     std::vector<uint8_t> alice_validation(check_bits_count);
     recv(client_fd, (char*)alice_validation.data(), check_bits_count, 0);
 
-    // 7. Measure if Eavesdropper exists
-    bool is_evesdropping = false;
+    // 7. Receive Pulse Types from Alice (Revealed AFTER measurement)
+    std::vector<uint8_t> alice_pulse_types(bb84::NUM_QUBITS);
+    int total_pt = 0;
+    while(total_pt < bb84::NUM_QUBITS) {
+        int r = recv(client_fd, (char*)alice_pulse_types.data() + total_pt, bb84::NUM_QUBITS - total_pt, 0);
+        if (r <= 0) break;
+        total_pt += r;
+    }
+
+    // 8. Eavesdropper & PNS Detection Logic
+    bool is_evesdropping = false; // Fixes C2065 (undeclared identifier)
+
+    // Check 1: Standard Bit Error Rate (QBER)
     for (int i = 0; i < check_bits_count; i++) {
         if (sifted_key[i] != alice_validation[i]) {
             is_evesdropping = true;
@@ -133,9 +144,30 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // (UNCOMMENT NEXT LINE TO SIMULATE AN EAVESDROPPER) 
-    // is_evesdropping = true;
+    // Check 2: Decoy State Analysis (PNS Defense)
+    int signal_sent = 0, signal_measured = 0;
+    int decoy_sent = 0, decoy_measured = 0;
 
+    for(int i = 0; i < bb84::NUM_QUBITS; i++) {
+        if (alice_pulse_types[i] == bb84::SIGNAL) signal_sent++;
+        else if (alice_pulse_types[i] == bb84::DECOY) decoy_sent++;
+    }
+
+    for (int idx : common_indices) {
+        if (alice_pulse_types[idx] == bb84::SIGNAL) signal_measured++;
+        else if (alice_pulse_types[idx] == bb84::DECOY) decoy_measured++;
+    }
+
+    double yield_signal = (signal_sent > 0) ? (double)signal_measured / signal_sent : 0;
+    double yield_decoy = (decoy_sent > 0) ? (double)decoy_measured / decoy_sent : 0;
+
+    // Threshold: Decoy yield should be ~50% (basis match). If it's way lower than Signal, Eve is splitting.
+    if (yield_decoy < (yield_signal * 0.6)) { 
+        is_evesdropping = true;
+        std::cerr << "[Bob] PNS Attack Detected! Signal Yield: " << yield_signal << " Decoy Yield: " << yield_decoy << "\n";
+    }
+
+    // 9. Send Validation Result back to Alice
     uint8_t validation_result = is_evesdropping ? 0 : 1;
     send(client_fd, (const char*)&validation_result, 1, 0);
 
@@ -148,7 +180,7 @@ int main(int argc, char* argv[]) {
         std::cerr << "\n[!] WARNING [!] BB84 EAVESDROPPER DETECTED OR HIGH NOISE!\n";
         std::cerr << "[Bob] Falling back to traditional Post-Quantum ML-KEM.\n";
     }
-
+    
     // ==========================================
     // PHASE 2: FALLBACK TO ML-KEM
     // ==========================================

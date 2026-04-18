@@ -73,51 +73,58 @@ int main(int argc, char* argv[]) {
         bool bb84_success = false;
 
         std::vector<uint8_t> bits = bb84::generate_bits_qrng(bb84::NUM_QUBITS);
-        std::vector<uint8_t> bases = bb84::generate_bits_qrng(bb84::NUM_QUBITS); // 0=Z, 1=X
-        std::vector<bb84::Qubit> quantum_channel = bb84::encode(bits, bases);
+        std::vector<uint8_t> bases = bb84::generate_bits_qrng(bb84::NUM_QUBITS);
+        std::vector<bb84::Qubit> quantum_channel(bb84::NUM_QUBITS);
+        std::vector<uint8_t> reveal_types(bb84::NUM_QUBITS);
 
-        // 1. Send Qubits over Quantum Channel (Simulated via TCP)
+        // 1. Prepare Qubits with Decoy States
+        for(int i = 0; i < bb84::NUM_QUBITS; i++) {
+            quantum_channel[i].value = bits[i];
+            quantum_channel[i].basis = bases[i];
+            quantum_channel[i].pulse_type = bb84::select_pulse_type(); 
+            
+            reveal_types[i] = quantum_channel[i].pulse_type;
+
+            if (quantum_channel[i].pulse_type == bb84::VACUUM) {
+                quantum_channel[i].value = 0; 
+            }
+        }
+
+        // 2. Send Qubits (ONLY ONCE)
         std::cerr << "[Alice] Sending " << bb84::NUM_QUBITS << " entangled qubits...\n";
         send(conn, (const char*)quantum_channel.data(), quantum_channel.size() * sizeof(bb84::Qubit), 0);
 
-        // 2. Classical Channel: Send Alice's bases
+        // 3. Classical Channel: Send Alice's bases
         std::cerr << "[Alice] Sending Classical Bases...\n";
         send(conn, (const char*)bases.data(), bases.size(), 0);
 
-        // 3. Receive common matching bases indices from Bob
+        // 4. Receive common matching bases indices from Bob
         int common_count = 0;
         recv(conn, (char*)&common_count, sizeof(common_count), 0);
         
         std::vector<int> common_indices(common_count);
         recv(conn, (char*)common_indices.data(), common_count * sizeof(int), 0);
         
-        std::cerr << "[Alice] Bob found " << common_count << " matching bases. Building Common Key.\n";
+        std::cerr << "[Alice] Bob found " << common_count << " matching bases.\n";
         
         std::vector<uint8_t> sifted_key;
         for (int idx : common_indices) {
             sifted_key.push_back(bits[idx]);
         }
 
-        // 4. Send random bits to check for an eavesdropper
+        // 5. Send Validation Bits
         int check_bits_count = std::min((int)sifted_key.size(), bb84::CHECK_BITS);
         std::vector<uint8_t> validation_bits(sifted_key.begin(), sifted_key.begin() + check_bits_count);
         send(conn, (const char*)&check_bits_count, sizeof(check_bits_count), 0);
         send(conn, (const char*)validation_bits.data(), check_bits_count, 0);
 
-        // 5. Receive Validation Result from Bob
+        // 6. Send Pulse Types (REVEAL)
+        // Bob is waiting for exactly NUM_QUBITS bytes here
+        send(conn, (const char*)reveal_types.data(), reveal_types.size(), 0);
+
+        // 7. Receive Validation Result from Bob
         uint8_t validation_result = 0;
         recv(conn, (char*)&validation_result, 1, 0);
-
-        if (validation_result == 1) {
-            std::cerr << "[Alice] BB84 SUCCESS! No eavesdropper detected.\n";
-            std::cerr << "[Alice] Applying Universal Hashing (Privacy Amplification)...\n";
-            bb84_success = true;
-            // Use universal hashing to create a secure 256-bit key
-            session_key = bb84::universal_hash(sifted_key);
-        } else {
-            std::cerr << "\n[!] WARNING [!] BB84 EAVESDROPPER DETECTED OR HIGH NOISE!\n";
-            std::cerr << "[Alice] Falling back to traditional Post-Quantum ML-KEM.\n";
-        }
         
         // ==========================================
         // PHASE 2: FALLBACK TO ML-KEM
