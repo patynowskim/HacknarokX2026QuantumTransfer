@@ -7,7 +7,7 @@ function Docs() {
   return (
     <>
     <div className='navSection'><Link to='/'>
-      <img src='logo.png' alt='logo, nawigacja do strony głównej' /></Link>
+      <img src='/logo.png' alt='logo, nawigacja do strony głównej' /></Link>
       <h2>Docs</h2>
         <hr />
       <ul>
