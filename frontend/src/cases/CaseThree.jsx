@@ -8,7 +8,7 @@ function CaseThree() {
     const [eveActive, setEveActive] = useState(false);
     const logsEndRef = useRef(null);
 
-    const API_URL = 'https://patynow.ski/api/simulate';
+    const API_URL = 'https://api.patynow.ski/api/simulate';
 
     useEffect(() => {
         logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
