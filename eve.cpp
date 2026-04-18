@@ -1,39 +1,45 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#ifdef _WIN32
-  #define NOMINMAX
-  #include <winsock2.h>
-  #include <ws2tcpip.h>
-  #pragma comment(lib, "Ws2_32.lib")
-#else
-  #include <sys/socket.h>
-  #include <arpa/inet.h>
-  #include <unistd.h>
-  #include <netdb.h>
-  #include <algorithm>
-  #define SOCKET int
-  #define INVALID_SOCKET (-1)
-  #define SOCKET_ERROR (-1)
-  #define closesocket close
-#endif
-
+#define NOMINMAX
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include "bb84.hpp"
 
-void relay_data(SOCKET from, SOCKET to, const std::string& label, bool modify_quantum = false) {
+#pragma comment(lib, "Ws2_32.lib")
+
+void relay_data(SOCKET from, SOCKET to, const std::string& label, bool modify_quantum = false, bool pns_attack = false) {
     char buffer[4096];
     int bytes = recv(from, buffer, sizeof(buffer), 0);
     if (bytes > 0) {
         if (modify_quantum && bytes >= (int)sizeof(bb84::Qubit)) {
-            std::cerr << "[Eve] Intercepting Qubits! Measuring and resending...\n";
             int num_qubits = bytes / sizeof(bb84::Qubit);
             bb84::Qubit* qubits = (bb84::Qubit*)buffer;
-            
-            for (int i = 0; i < num_qubits; i++) {
-                uint8_t eve_basis = rand() % 2;
-                if (qubits[i].basis != eve_basis) {
-                    qubits[i].value = rand() % 2;
-                    qubits[i].basis = eve_basis;
+
+            if (pns_attack) {
+                std::cerr << "[Eve] Performing PNS attack on quantum channel...\n";
+
+                for (int i = 0; i < num_qubits; i++) {
+                    if (qubits[i].pulse_type == bb84::SIGNAL) {
+                    }
+                    else if (qubits[i].pulse_type == bb84::DECOY) {
+                        uint8_t eve_basis = rand() % 2;
+                        if (qubits[i].basis != eve_basis) {
+                            qubits[i].value = rand() % 2;
+                            qubits[i].basis = eve_basis;
+                        }
+                    }
+                }
+
+            } else {
+                std::cerr << "[Eve] Intercept-resend attack...\n";
+
+                for (int i = 0; i < num_qubits; i++) {
+                    uint8_t eve_basis = rand() % 2;
+                    if (qubits[i].basis != eve_basis) {
+                        qubits[i].value = rand() % 2;
+                        qubits[i].basis = eve_basis;
+                    }
                 }
             }
         }
@@ -43,10 +49,8 @@ void relay_data(SOCKET from, SOCKET to, const std::string& label, bool modify_qu
 }
 
 int main(int argc, char* argv[]) {
-#ifdef _WIN32
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2, 2), &wsaData);
-#endif
 
     std::string alice_ip = "127.0.0.1";
     int alice_port = 8080;
@@ -55,6 +59,14 @@ int main(int argc, char* argv[]) {
     if (argc >= 2) alice_ip = argv[1];
     if (argc >= 3) alice_port = std::stoi(argv[2]);
     if (argc >= 4) listen_port = std::stoi(argv[3]);
+
+    bool pns_attack = false;
+
+    for (int i = 1; i < argc; i++) {
+        if (std::string(argv[i]) == "--pns") {
+            pns_attack = true;
+        }
+    }
 
     // 1. Connect to Alice
     SOCKET to_alice = socket(AF_INET, SOCK_STREAM, 0);
@@ -81,7 +93,7 @@ int main(int argc, char* argv[]) {
     SOCKET to_bob = accept(listen_sock, nullptr, nullptr);
 
     // 3. Intercept Phase 1: The Qubits (Alice -> Bob)
-    relay_data(to_alice, to_bob, "Alice (Qubits)", true);
+    relay_data(to_alice, to_bob, "Alice (Qubits)", true, pns_attack);
 
     // 4. Relay all subsequent traffic (Classical Channels)
     while (true) {
@@ -98,8 +110,6 @@ int main(int argc, char* argv[]) {
 
     closesocket(to_alice);
     closesocket(to_bob);
-#ifdef _WIN32
     WSACleanup();
-#endif
     return 0;
 }

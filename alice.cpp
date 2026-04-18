@@ -4,25 +4,14 @@
 #include <iomanip>
 #include <algorithm>
 
-#ifdef _WIN32
-  #define NOMINMAX
-  #include <winsock2.h>
-  #include <ws2tcpip.h>
-  #pragma comment(lib, "Ws2_32.lib")
-#else
-  #include <sys/socket.h>
-  #include <arpa/inet.h>
-  #include <unistd.h>
-  #include <netdb.h>
-  #define SOCKET int
-  #define INVALID_SOCKET (-1)
-  #define SOCKET_ERROR (-1)
-  #define closesocket close
-#endif
-
+#define NOMINMAX
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <oqs/oqs.h>
 #include "bb84.hpp"
 #include "crypto.hpp"
+
+#pragma comment(lib, "Ws2_32.lib")
 
 // Dynamic arguments
 
@@ -46,10 +35,8 @@ int main(int argc, char* argv[]) {
         custom_message = std::string(begin, end);
     }
 
-#ifdef _WIN32
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2, 2), &wsaData);
-#endif
 
     OQS_KEM *kem = OQS_KEM_new(OQS_KEM_alg_ml_kem_768);
     if (!kem) {
@@ -122,6 +109,9 @@ int main(int argc, char* argv[]) {
         
         std::vector<uint8_t> sifted_key;
         for (int idx : common_indices) {
+            if (quantum_channel[idx].pulse_type == bb84::VACUUM)
+                continue;
+
             sifted_key.push_back(bits[idx]);
         }
 
@@ -137,6 +127,23 @@ int main(int argc, char* argv[]) {
         // 7. Receive Validation Result from Bob
         uint8_t validation_result = 0;
         recv(conn, (char*)&validation_result, 1, 0);
+
+        print_hex("[DEBUG] Sifted Key: ", sifted_key.data(), sifted_key.size());
+
+        if (validation_result == 1) {
+            std::cerr << "[Alice] BB84 SUCCESS! No eavesdropper detected.\n";
+            bb84_success = true;
+            std::vector<uint8_t> final_key(
+                sifted_key.begin() + check_bits_count,
+                sifted_key.end()
+            );
+
+            session_key = bb84::universal_hash(final_key);
+            print_hex("[DEBUG] Final Session Key: ", session_key.data(), session_key.size());
+        } else {
+            std::cerr << "\n[!] WARNING [!] BB84 EAVESDROPPER DETECTED OR HIGH NOISE!\n";
+            bb84_success = false;
+        }
         
         // ==========================================
         // PHASE 2: FALLBACK TO ML-KEM
@@ -192,8 +199,6 @@ int main(int argc, char* argv[]) {
     }
     closesocket(server_fd);
     OQS_KEM_free(kem);
-#ifdef _WIN32
     WSACleanup();
-#endif
     return 0;
 }

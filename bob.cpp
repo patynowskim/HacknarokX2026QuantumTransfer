@@ -6,25 +6,14 @@
 #include <chrono>
 #include <algorithm>
 
-#ifdef _WIN32
-  #define NOMINMAX
-  #include <winsock2.h>
-  #include <ws2tcpip.h>
-  #pragma comment(lib, "Ws2_32.lib")
-#else
-  #include <sys/socket.h>
-  #include <arpa/inet.h>
-  #include <unistd.h>
-  #include <netdb.h>
-  #define SOCKET int
-  #define INVALID_SOCKET (-1)
-  #define SOCKET_ERROR (-1)
-  #define closesocket close
-#endif
-
+#define NOMINMAX
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <oqs/oqs.h>
 #include "bb84.hpp"
 #include "crypto.hpp"
+
+#pragma comment(lib, "Ws2_32.lib")
 
 // Command line args used
 
@@ -56,10 +45,8 @@ int main(int argc, char* argv[]) {
         custom_message = std::string(begin, end);
     }
 
-#ifdef _WIN32
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2, 2), &wsaData);
-#endif
 
     OQS_KEM *kem = OQS_KEM_new(OQS_KEM_alg_ml_kem_768);
     if (!kem) {
@@ -100,7 +87,7 @@ int main(int argc, char* argv[]) {
     std::cerr << "[Bob] Received " << bb84::NUM_QUBITS << " entangled qubits...\n";
 
     // 2. Measure against local random bases
-    std::vector<uint8_t> bob_bases = bb84::generate_bits(bb84::NUM_QUBITS);
+    std::vector<uint8_t> bob_bases = bb84::generate_bits_qrng(bb84::NUM_QUBITS);
     std::vector<uint8_t> measured_bits = bb84::measure(quantum_channel, bob_bases);
 
     // 3. Receive Alice's Classical Bases
@@ -128,6 +115,9 @@ int main(int argc, char* argv[]) {
     // Build the sifted key
     std::vector<uint8_t> sifted_key;
     for (int idx : common_indices) {
+        if (quantum_channel[idx].pulse_type == bb84::VACUUM)
+            continue;
+
         sifted_key.push_back(measured_bits[idx]);
     }
 
@@ -171,11 +161,24 @@ int main(int argc, char* argv[]) {
         else if (alice_pulse_types[idx] == bb84::DECOY) decoy_measured++;
     }
 
+    int error_count = 0;
+    for (int i = 0; i < check_bits_count; i++) {
+        if (sifted_key[i] != alice_validation[i]) {
+            error_count++;
+        }
+    }
+
+    // DEBUG PRINT
+    std::cerr << "[Bob] Bit Check: " << error_count << " errors out of " << check_bits_count << " bits.\n";
+
+    if (error_count > (check_bits_count * 0.15)) {
+        is_evesdropping = true;
+    }
+
     double yield_signal = (signal_sent > 0) ? (double)signal_measured / signal_sent : 0;
     double yield_decoy = (decoy_sent > 0) ? (double)decoy_measured / decoy_sent : 0;
 
-    // Threshold: Decoy yield should be ~50% (basis match). If it's way lower than Signal, Eve is splitting.
-    if (yield_decoy < (yield_signal * 0.6)) { 
+    if (yield_decoy < (yield_signal * 0.3)) {
         is_evesdropping = true;
         std::cerr << "[Bob] PNS Attack Detected! Signal Yield: " << yield_signal << " Decoy Yield: " << yield_decoy << "\n";
     }
@@ -186,12 +189,21 @@ int main(int argc, char* argv[]) {
 
     if (!is_evesdropping) {
         std::cerr << "[Bob] BB84 SUCCESS! No eavesdropper detected.\n";
-        std::cerr << "[Bob] Applying Universal Hashing (Privacy Amplification)...\n";
+        // MOVE HASHING HERE - Before you print or use the key
+        std::vector<uint8_t> final_key(
+            sifted_key.begin() + check_bits_count,
+            sifted_key.end()
+        );
+
+        session_key = bb84::universal_hash(final_key);
+        
+        std::cerr << "[Bob] Applying Universal Hashing...\n";
+        print_hex("[DEBUG] Sifted Key: ", sifted_key.data(), sifted_key.size());
+        print_hex("[DEBUG] Final Session Key: ", session_key.data(), session_key.size());
+        
         bb84_success = true;
-        session_key = bb84::universal_hash(sifted_key);
     } else {
-        std::cerr << "\n[!] WARNING [!] BB84 EAVESDROPPER DETECTED OR HIGH NOISE!\n";
-        std::cerr << "[Bob] Falling back to traditional Post-Quantum ML-KEM.\n";
+        std::cerr << "\n[!] WARNING [!] BB84 EAVESDROPPER DETECTED!\n";
     }
     
     // ==========================================
@@ -245,8 +257,6 @@ int main(int argc, char* argv[]) {
 
     closesocket(client_fd);
     OQS_KEM_free(kem);
-#ifdef _WIN32
     WSACleanup();
-#endif
     return 0;
 }
