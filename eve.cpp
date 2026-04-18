@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     bind(listen_sock, (struct sockaddr*)&listen_addr, sizeof(listen_addr));
     listen(listen_sock, 1);
 
-    std::cerr << "[Eve] MITM Active. Alice: 8080 <-> Bob: 8081\n";
+    std::cerr << "[Eve] MITM Active. Alice: " << alice_port << " <-> Bob: " << listen_port << "\n";
     SOCKET to_bob = accept(listen_sock, nullptr, nullptr);
 
     // 3. Intercept Phase 1: The Qubits (Alice -> Bob)
