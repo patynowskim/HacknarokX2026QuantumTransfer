@@ -1,6 +1,11 @@
 # jak uzyc?????
 
 ### kompiliren machen
+
+```
+cmake -B build
+```
+
 ```
 cmake --build build --config Release
 ```
