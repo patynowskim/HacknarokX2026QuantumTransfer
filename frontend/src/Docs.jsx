@@ -22,8 +22,8 @@ function Docs() {
       <h1>Docs</h1>
       
       <section id="intro">
-        <h3>Intro do komputerów kwantowych</h3>
-        <p>Tradycyjne komputery, z których korzystamy na co dzień, działają na bitach – informacja to zawsze albo 0, albo 1. Wyobraź sobie to jako przełącznik światła: włączony lub wyłączony. Komputery kwantowe używają <strong>kubitów</strong>. Dzięki prawom fizyki kwantowej, kubit może być zerem, jedynką, albo – i tu zaczyna się magia – obiema wartościami naraz (nazywamy to superpozycją). Dopiero gdy spróbujemy ten kubit "odczytać" (zmierzyć), decyduje się on na jedną, konkretną wartość.</p>
+        <h3>Komputery kwantowe</h3>
+        <p>Tradycyjne komputery, z których korzystamy na co dzień, działają na bitach - informacja to zawsze albo 0, albo 1. Wyobraź sobie to jako przełącznik światła: włączony lub wyłączony. Komputery kwantowe używają <strong>kubitów</strong>. Dzięki prawom fizyki kwantowej, kubit może być zerem, jedynką, albo - i tu zaczyna się magia - obiema wartościami naraz (nazywamy to superpozycją). Dopiero gdy spróbujemy ten kubit "odczytać" (zmierzyć), decyduje się on na jedną, konkretną wartość.</p>
         <p>Ta właściwość sprawia, że komputery kwantowe potrafią rozwiązywać niezwykle skomplikowane problemy matematyczne (w tym łamać obecne hasła) w ułamku sekundy.</p>
       </section>
 
@@ -34,7 +34,8 @@ function Docs() {
 
       <section id="purpose">
         <h3>Zamysł projektu</h3>
-        <p>Serwery kwantowe do użytku komercjalnego to już nie science-fiction, to niedaleka przyszłość. Na szczęście, aby z nich korzystać, nie musimy rozkopywać ulic i wymieniać wszystkich kabli. Sygnał kwantowy można przesyłać przez istniejące kable światłowodowe bez zakłócania obecnego, "zwykłego" internetu. Protokół QTCP został stworzony po to, aby serwery mogły zacząć używać tej nowej, superbezpiecznej technologii już teraz, działając na obecnej infrastrukturze jako fundament pod przyszłe, w pełni kwantowe serwerownie.</p>
+        <p>Z roku na roku możliwa komercjalizacja komputerowych kwantowych staje się coraz bardziej realna. By zapewnić gładką tranzycję w świat nowej technologii, należy już teraz szykować podwaliny pod nową infrastrukturę. Nasz projekt celuje by stać się platformą przejściową między serwerami kwantowymi a klasycznymi.
+          </p>
       </section>
 
       <section id="how-it-works">
