@@ -9,8 +9,28 @@ namespace bb84 {
 
     struct Qubit {
         uint8_t value;
-        uint8_t basis; // 0 for Z, 1 for X
+        uint8_t basis;
     };
+
+    //QRNG instead of default RNG to prevent reconstructing pseudo-number generator
+    inline uint8_t qrng_bit() {
+        QuantumCircuit qc(1);
+        qc.apply_gate(QG::H, 0); 
+        
+        auto probs = qc.probabilities();
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        std::uniform_real_distribution<> dis(0.0, 1.0);
+        
+        double p0 = (probs.count("0")) ? probs.at("0") : 0.0;
+        return (dis(gen) < p0) ? 0 : 1;
+    }
+
+    inline std::vector<uint8_t> generate_bits_qrng(int n) {
+        std::vector<uint8_t> v(n);
+        for(auto &x : v) x = qrng_bit();
+        return v;
+    }
 
     inline uint8_t random_bit() {
         static std::mt19937 gen(std::random_device{}());
