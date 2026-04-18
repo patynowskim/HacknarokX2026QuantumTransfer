@@ -9,23 +9,31 @@
 #include <ws2tcpip.h>
 #include <oqs/oqs.h>
 #include "bb84.hpp"
+#include "crypto.hpp"
 
 #pragma comment(lib, "Ws2_32.lib")
 
 // Dynamic arguments
 
 void print_hex(const char* label, const uint8_t* data, size_t len, size_t max_print = 16) {
-    std::cout << label;
+    std::cerr << label;
     for (size_t i = 0; i < (len < max_print ? len : max_print); i++) {
-        std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)data[i];
+        std::cerr << std::hex << std::setw(2) << std::setfill('0') << (int)data[i];
     }
-    std::cout << "...\n";
+    std::cerr << "...\n";
 }
 
 int main(int argc, char* argv[]) {
     std::string bind_ip = (argc >= 2) ? argv[1] : "0.0.0.0";
     int port = (argc >= 3) ? std::stoi(argv[2]) : 8080;
-    std::string custom_message = (argc >= 4) ? argv[3] : "READY_FOR_ENCRYPTED_SESSION";
+    
+    std::string custom_message;
+    if (argc >= 4) {
+        custom_message = argv[3];
+    } else {
+        std::istreambuf_iterator<char> begin(std::cin), end;
+        custom_message = std::string(begin, end);
+    }
 
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -49,16 +57,19 @@ int main(int argc, char* argv[]) {
     bind(server_fd, (struct sockaddr*)&address, sizeof(address));
     listen(server_fd, 1);
 
-    std::cout << "[Alice] Duplex UART-WiFi Bridge Active. Waiting for Bob on " << bind_ip << ":" << port << "...\n";
+    std::cerr << "[Alice] Duplex UART-WiFi Bridge Active. Waiting for Bob on " << bind_ip << ":" << port << "...\n";
 
     SOCKET conn = accept(server_fd, nullptr, nullptr);
     if (conn != INVALID_SOCKET) {
-        std::cout << "[Alice] Accepted connection.\n";
+        std::cerr << "[Alice] Accepted connection.\n";
+
+        // Session Key for Payload Encryption
+        std::vector<uint8_t> session_key;
 
         // ==========================================
         // PHASE 1: QUANTUM DIRECT BB84
         // ==========================================
-        std::cout << "\n--- [ ALICE ] STARTING QUANTUM BB84 KEY EXCHANGE ---\n";
+        std::cerr << "\n--- [ ALICE ] STARTING QUANTUM BB84 KEY EXCHANGE ---\n";
         bool bb84_success = false;
 
         std::vector<uint8_t> bits = bb84::generate_bits(bb84::NUM_QUBITS);
@@ -66,11 +77,11 @@ int main(int argc, char* argv[]) {
         std::vector<bb84::Qubit> quantum_channel = bb84::encode(bits, bases);
 
         // 1. Send Qubits over Quantum Channel (Simulated via TCP)
-        std::cout << "[Alice] Sending " << bb84::NUM_QUBITS << " entangled qubits...\n";
+        std::cerr << "[Alice] Sending " << bb84::NUM_QUBITS << " entangled qubits...\n";
         send(conn, (const char*)quantum_channel.data(), quantum_channel.size() * sizeof(bb84::Qubit), 0);
 
         // 2. Classical Channel: Send Alice's bases
-        std::cout << "[Alice] Sending Classical Bases...\n";
+        std::cerr << "[Alice] Sending Classical Bases...\n";
         send(conn, (const char*)bases.data(), bases.size(), 0);
 
         // 3. Receive common matching bases indices from Bob
@@ -80,7 +91,7 @@ int main(int argc, char* argv[]) {
         std::vector<int> common_indices(common_count);
         recv(conn, (char*)common_indices.data(), common_count * sizeof(int), 0);
         
-        std::cout << "[Alice] Bob found " << common_count << " matching bases. Building Common Key.\n";
+        std::cerr << "[Alice] Bob found " << common_count << " matching bases. Building Common Key.\n";
         
         std::vector<uint8_t> sifted_key;
         for (int idx : common_indices) {
@@ -98,25 +109,27 @@ int main(int argc, char* argv[]) {
         recv(conn, (char*)&validation_result, 1, 0);
 
         if (validation_result == 1) {
-            std::cout << "[Alice] BB84 SUCCESS! No eavesdropper detected.\n";
-            std::cout << "[Alice] Using established quantum key.\n";
+            std::cerr << "[Alice] BB84 SUCCESS! No eavesdropper detected.\n";
+            std::cerr << "[Alice] Using established quantum key.\n";
             bb84_success = true;
+            // Map quantum bits safely to 256-bit (32 byte) symmetric encryption key size
+            session_key.assign(sifted_key.begin(), sifted_key.begin() + std::min((size_t)32, sifted_key.size()));
         } else {
-            std::cout << "\n[!] WARNING [!] BB84 EAVESDROPPER DETECTED OR HIGH NOISE!\n";
-            std::cout << "[Alice] Falling back to traditional Post-Quantum ML-KEM.\n";
+            std::cerr << "\n[!] WARNING [!] BB84 EAVESDROPPER DETECTED OR HIGH NOISE!\n";
+            std::cerr << "[Alice] Falling back to traditional Post-Quantum ML-KEM.\n";
         }
         
         // ==========================================
         // PHASE 2: FALLBACK TO ML-KEM
         // ==========================================
         if (!bb84_success) {
-            std::cout << "\n--- [ ALICE ] STARTING ML-KEM FALLBACK ---\n";
+            std::cerr << "\n--- [ ALICE ] STARTING ML-KEM FALLBACK ---\n";
             // 1. Send Public Key
             send(conn, (const char*)ek.data(), ek.size(), 0);
-            std::cout << "[Alice] Sent EK (" << ek.size() << " bytes)\n";
+            std::cerr << "[Alice] Sent EK (" << ek.size() << " bytes)\n";
 
             // 2. Duplex Read (Wait for Bob's Ciphertext)
-            std::cout << "[Alice] Waiting for incoming data...\n";
+            std::cerr << "[Alice] Waiting for incoming data...\n";
             std::vector<uint8_t> ciphertext(kem->length_ciphertext);
             
             int total_received = 0;
@@ -133,23 +146,28 @@ int main(int argc, char* argv[]) {
                 std::vector<uint8_t> shared_secret(kem->length_shared_secret);
                 OQS_KEM_decaps(kem, shared_secret.data(), ciphertext.data(), dk.data());
                 
-                std::cout << "[Alice] Key Exchange Complete!\n";
+                std::cerr << "[Alice] Key Exchange Complete!\n";
                 print_hex("[Alice] Shared ML-KEM Secret: ", shared_secret.data(), shared_secret.size());
+                
+                // Establish ML-KEM output as AES-256 Symmetric Fallback Key
+                session_key = shared_secret;
             } else {
-                std::cout << "[Alice] Error: Corrupt ML-KEM Data.\n";
+                std::cerr << "[Alice] Error: Corrupt ML-KEM Data.\n";
             }
         }
 
-        std::cout << "\n--- ESTABLISHED SECURE SESSION ---\n";
-        // 3. Send custom message
-        send(conn, custom_message.c_str(), custom_message.length(), 0);
-        std::cout << "[Alice] Sent custom message: " << custom_message << "\n";
+        std::cerr << "\n--- SECURE SYMMETRIC ENCRYPTED SESSION ESTABLISHED ---\n";
+        
+        // 3. Send custom encrypted message (framing included)
+        crypto::send_framed_payload(conn, custom_message, session_key);
+        std::cerr << "[Alice] Sent encrypted custom message\n";
 
-        // 4. Receive Bob's custom message
-        char bob_msg[1024] = {0};
-        int msg_len = recv(conn, bob_msg, sizeof(bob_msg) - 1, 0);
-        if (msg_len > 0) {
-            std::cout << "[Alice] Received from Bob: " << bob_msg << "\n";
+        // 4. Receive Bob's custom encrypted message using Framing
+        std::string bob_msg = crypto::recv_framed_payload(conn, session_key);
+        if (!bob_msg.empty()) {
+            std::cerr << "[Alice] Received decoded payload.\n";
+            std::cout.write(bob_msg.c_str(), bob_msg.size());
+            std::cout.flush();
         }
         closesocket(conn);
     }
