@@ -28,7 +28,7 @@ function Home() {
           </Link>
         </div>
         <div className="col-auto">
-          <Link to="/simulation">
+          <Link to="/simulation/QuantumTransfer">
             <button className='btn btn-secondary p-2'>Simulation</button>
           </Link>
         </div>
