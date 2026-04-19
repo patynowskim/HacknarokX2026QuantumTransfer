@@ -72,7 +72,6 @@ function CaseFour() {
                         shootPacket('BtoA');
                     }
                 }
-
                 index++;
             } else {
                 clearInterval(timer);
@@ -81,7 +80,6 @@ function CaseFour() {
             }
         }, 800);
     };
-
     const shootPacket = (direction) => {
         const packetId = Date.now() + Math.random();
         setPackets(prev => [...prev, { id: packetId, direction: direction }]);
@@ -90,12 +88,11 @@ function CaseFour() {
             setPackets(prev => prev.filter(p => p.id !== packetId));
         }, 2000);
     };
-
     return (
         <div className="d-flex flex-column w-100 h-100 bg-dark" style={{ minHeight: '400px' }}>
             <h1 className='pt-5 text-white w-100 d-flex justify-content-center align-items-center'>Scenariusz czwarty - Photon Number Speeding</h1>
             <div className='d-flex justify-content-center  w-100'>
-            <p className='lead p-3 text-white w-40 d-flex text-center justify-content-center align-items-center'>Jest to wyrafinowana technika ataku, w której intruz przechwytuje nadmiarowe fotony z impulsów wielofotonowych, nie zaburzając przy tym stanu polaryzacji cząstek docierających do odbiorcy. Dzięki temu atakujący może potajemnie odczytać część przesyłanych informacji kryptograficznych, unikając wykrycia przez standardowe mechanizmy alarmowe systemu.</p>
+            <p className='lead p-0 text-white w-40 d-flex text-center justify-content-center align-items-center'>Jest to wyrafinowana technika ataku, w której intruz przechwytuje nadmiarowe fotony z impulsów wielofotonowych, nie zaburzając przy tym stanu polaryzacji cząstek docierających do odbiorcy. Dzięki temu atakujący może potajemnie odczytać część przesyłanych informacji kryptograficznych, unikając wykrycia przez standardowe mechanizmy alarmowe systemu.</p>
             </div>
             <div className="d-flex justify-content-between align-items-center flex-grow-1 px-5 w-100">
 
@@ -108,7 +105,7 @@ function CaseFour() {
 
                 <div className="flex-grow-1 position-relative h-100 d-flex justify-content-center align-items-center">
 
-                    <div className="position-absolute w-100 h-20 d-flex flex-column justify-content-center align-items-center gap-3" style={{ zIndex: 5 }}>
+                    <div className="position-absolute mb-5 w-100 h-20 d-flex flex-column justify-content-center align-items-center gap-3" style={{ top: '10%', zIndex: 5 }}>
                         <button
                             className="btn btn-warning shadow-lg px-4 py-2"
                             onClick={startSimulation}
@@ -131,7 +128,6 @@ function CaseFour() {
                     >
                         <span className="fw-bold fs-5">Eve</span>
                     </div>
-
                     <svg
                         className="position-absolute w-100 h-100"
                         style={{ top: 0, left: 0, pointerEvents: 'none', zIndex: 1 }}

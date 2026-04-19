@@ -108,7 +108,7 @@ function CaseThree() {
 
                 <div className="flex-grow-1 position-relative h-100 d-flex justify-content-center align-items-center">
 
-                    <div className="position-absolute w-100 h-20 d-flex flex-column justify-content-center align-items-center gap-3" style={{zIndex: 5 }}>
+                    <div className="position-absolute w-100 h-20 d-flex flex-column justify-content-center align-items-center gap-3" style={{ top: '10%', zIndex: 5 }}>
                         <button
                             className="btn btn-warning shadow-lg px-4 py-2"
                             onClick={startSimulation}
