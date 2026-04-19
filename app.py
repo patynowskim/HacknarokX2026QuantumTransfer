@@ -131,8 +131,8 @@ def simulate():
         time.sleep(1) # wait for bind
         
     # Start Bob
-    bob_cmd = ["./build/bob", "127.0.0.1", bob_port]
-    t_bob = threading.Thread(target=run_node, args=("Bob", bob_cmd, bob_payload, output_list))
+    bob_cmd = ["./build/bob", "127.0.0.1", bob_port, bob_payload]
+    t_bob = threading.Thread(target=run_node, args=("Bob", bob_cmd, "", output_list))
     t_bob.start()
     threads.append(t_bob)
     
