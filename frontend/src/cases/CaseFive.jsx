@@ -93,8 +93,10 @@ function CaseFive() {
 
     return (
         <div className="d-flex flex-column w-100 h-100 bg-dark" style={{ minHeight: '400px' }}>
-            <h1 className='p-5 text-white w-100 d-flex justify-content-center align-items-center'>Case Five - DDoS</h1>
-
+            <h1 className='pt-5 text-white w-100 d-flex justify-content-center align-items-center'>Scenariusz piąty - DDoS</h1>
+            <div className='d-flex justify-content-center  w-100'>
+                <p className='lead p-3 text-white w-40 d-flex text-center justify-content-center align-items-center'>W przypadku fizycznego uszkodzenia światłowodu lub zmasowanego ataku blokującego kanał optyczny, precyzyjna transmisja fotonów staje się całkowicie niemożliwa. Aby zapobiec paraliżowi sieci, system bezzwłocznie uruchamia procedurę awaryjną (fallback) i przechodzi w standardowy, klasyczny tryb komunikacji.</p>
+            </div>
             <div className="d-flex justify-content-between align-items-center flex-grow-1 px-5 w-100">
 
                 <div

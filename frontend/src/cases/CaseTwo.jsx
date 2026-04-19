@@ -88,8 +88,10 @@ function CaseTwo() {
 
     return (
         <div className="d-flex flex-column w-100 h-100 bg-dark" style={{ minHeight: '400px' }}>
-            <h1 className='p-5 text-white w-100 d-flex justify-content-center align-items-center'>Case Two - ML-KEM</h1>
-
+            <h1 className='pt-5 text-white w-100 d-flex justify-content-center align-items-center'>Scenariusz drugi - ML-KEM</h1>
+            <div className='d-flex justify-content-center  w-100'>
+            <p className='lead p-3 text-white w-40 d-flex text-center justify-content-center align-items-center'>(Module-Lattice-based Key-Encapsulation Mechanism) to ustandaryzowany algorytm kryptografii postkwantowej, zaprojektowany do bezpiecznej asymetrycznej wymiany kluczy kryptograficznych nawet w obliczu ataków z użyciem przyszłych komputerów kwantowych. W opisanym systemie pełni on funkcję niezawodnego mechanizmu zapasowego, przejmując zadanie zabezpieczania komunikacji w momencie, gdy główny kanał kwantowy BB84 zostaje przerwany z powodu zakłóceń lub wykrycia podsłuchu.</p>
+            </div>
             <div className="d-flex justify-content-between align-items-center flex-grow-1 px-5 w-100">
 
                 <div

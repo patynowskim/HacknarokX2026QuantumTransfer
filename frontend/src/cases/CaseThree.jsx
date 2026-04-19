@@ -93,9 +93,11 @@ function CaseThree() {
 
     return (
         <div className="d-flex flex-column w-100 h-100 bg-dark" style={{ minHeight: '400px' }}>
-            <h1 className='p-5 text-white w-100 d-flex justify-content-center align-items-center'>Case Three - Eavesdropping</h1>
-
-            <div className="d-flex justify-content-between align-items-center flex-grow-1 px-5 w-100">
+            <h1 className='pt-5 text-white w-100 d-flex justify-content-center align-items-center'>Scenariusz trzeci- Eavesdropping</h1>
+            <div className='d-flex justify-content-center  w-100'>
+            <p className='lead p-3 text-white w-40 d-flex text-center justify-content-center align-items-center'>Gdy system zarejestruje niepokojąco wysoki wskaźnik błędów kwantowych (QBER), uznaje to za próbę nieautoryzowanego przechwycenia danych i natychmiast przerywa protokół BB84. W celu utrzymania ciągłości i bezpieczeństwa komunikacji, sieć automatycznie przełącza się na postkwantowy algorytm asymetryczny ML-KEM.</p>
+            </div>
+            <div className="h6 d-flex justify-content-between align-items-center flex-grow-1 px-5 w-100">
 
                 <div
                     className="bg-primary text-white d-flex justify-content-center align-items-center rounded shadow flex-shrink-0"
