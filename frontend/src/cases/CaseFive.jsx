@@ -25,7 +25,7 @@ function CaseFive() {
                 body: JSON.stringify({
                     alice_payload: "Tajny klucz od Alice",
                     bob_payload: "Zrozumiałem, Bob.",
-                    scenario: "normal" 
+                    scenario: "ddos" 
                 })
             });
 
