@@ -99,6 +99,16 @@ int main(int argc, char* argv[]) {
             setsockopt(conn, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof(tv));
             #endif
 
+            // Fast handshake to prevent DDoS
+            uint8_t probe;
+            int r = recv(conn, (char*)&probe, 1, 0);
+
+            if (r <= 0) {
+                std::cerr << "[Alice] Dropping slow/stalled connection (no handshake)\n";
+                closesocket(conn);
+                continue;
+            }
+
             uint8_t mode = force_mlkem ? 0x02 : 0x01;
             send(conn, (const char*)&mode, 1, 0);
 
