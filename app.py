@@ -95,10 +95,10 @@ def simulate():
         bob_port = str(get_free_port()) # Bob connects to Eve
         
     # Start Alice
-    alice_cmd = ["./build/alice", "127.0.0.1", alice_port]
+    alice_cmd = ["./build/alice", "127.0.0.1", alice_port, alice_payload]
     if use_mlkem:
         alice_cmd.append("--mlkem")
-    t_alice = threading.Thread(target=run_node, args=("Alice", alice_cmd, alice_payload, output_list))
+    t_alice = threading.Thread(target=run_node, args=("Alice", alice_cmd, "", output_list))
     t_alice.start()
     threads.append(t_alice)
     
