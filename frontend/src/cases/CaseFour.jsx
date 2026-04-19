@@ -5,7 +5,7 @@ function CaseFour() {
     const [packets, setPackets] = useState([]);
     const [logs, setLogs] = useState([{ role: 'System', msg: 'Oczekuję na rozpoczęcie symulacji...' }]);
     const [isSimulating, setIsSimulating] = useState(false);
-
+    const [eveActive, setEveActive] = useState(false);
     const logsEndRef = useRef(null);
 
     const API_URL = 'https://api.patynow.ski/api/simulate';
@@ -23,9 +23,9 @@ function CaseFour() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    alice_payload: "Tajny klucz od Alice",
-                    bob_payload: "Zrozumiałem, Bob.",
-                    scenario: "pns" 
+                    alice_payload: "Zrozumiałam, Bob.",
+                    bob_payload: "Tajny klucz od Alice",
+                    scenario: "pns"  
                 })
             });
 
@@ -51,6 +51,11 @@ function CaseFour() {
             if (index < logArray.length) {
                 const currentLog = logArray[index];
                 setLogs(prev => [...prev, currentLog]);
+
+                if (currentLog.role === 'Eve') {
+                    setEveActive(true);
+                    setTimeout(() => setEveActive(false), 400);
+                }
 
                 const msgLower = currentLog.msg.toLowerCase();
                 const isSendingEvent =
@@ -94,14 +99,14 @@ function CaseFour() {
 
                 <div
                     className="bg-primary text-white d-flex justify-content-center align-items-center rounded shadow flex-shrink-0"
-                    style={{ width: '120px', height: '120px', zIndex: 2 }}
+                    style={{ width: '120px', height: '120px', zIndex: 4 }}
                 >
                     Alice
                 </div>
 
-                <div className="flex-grow-1 position-relative h-100">
+                <div className="flex-grow-1 position-relative h-100 d-flex justify-content-center align-items-center">
 
-                    <div className="position-absolute w-100 h-20 d-flex flex-column justify-content-center align-items-center gap-3" style={{ zIndex: 5 }}>
+                    <div className="position-absolute w-100 h-20 d-flex flex-column justify-content-center align-items-center gap-3" style={{ top: '10%', zIndex: 5 }}>
                         <button
                             className="btn btn-warning shadow-lg px-4 py-2"
                             onClick={startSimulation}
@@ -109,6 +114,20 @@ function CaseFour() {
                         >
                             {isSimulating ? "Trwa symulacja..." : "Rozpocznij Symulację"}
                         </button>
+                    </div>
+
+                    <div 
+                        className="bg-danger text-white d-flex flex-column justify-content-center align-items-center rounded-circle shadow-lg position-absolute"
+                        style={{ 
+                            width: '100px', 
+                            height: '100px', 
+                            zIndex: 3,
+                            transition: 'all 0.2s ease-in-out',
+                            transform: eveActive ? 'scale(1.2)' : 'scale(1)',
+                            boxShadow: eveActive ? '0 0 20px 5px rgba(220, 53, 69, 0.8)' : ''
+                        }}
+                    >
+                        <span className="fw-bold fs-5">Eve</span>
                     </div>
 
                     <svg
@@ -121,16 +140,16 @@ function CaseFour() {
 
                     {packets.map(packet => {
                         if (packet.direction === 'AtoB') {
-                            return <div key={packet.id} className="network-packet packet-a-to-b" />;
+                            return <div key={packet.id} className="network-packet packet-a-to-b" style={{ zIndex: 2 }} />;
                         } else {
-                            return <div key={packet.id} className="network-packet packet-b-to-a" />;
+                            return <div key={packet.id} className="network-packet packet-b-to-a" style={{ zIndex: 2 }} />;
                         }
                     })}
                 </div>
 
                 <div
                     className="bg-success text-white d-flex justify-content-center align-items-center rounded shadow flex-shrink-0"
-                    style={{ width: '120px', height: '120px', zIndex: 2 }}
+                    style={{ width: '120px', height: '120px', zIndex: 4 }}
                 >
                     Bob
                 </div>

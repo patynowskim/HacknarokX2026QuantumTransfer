@@ -297,6 +297,7 @@ int main(int argc, char* argv[]) {
     if (!alice_msg.empty()) {
         std::cerr << "[Bob] Received decoded payload.\n";
         std::cout.write(alice_msg.c_str(), alice_msg.size());
+        std::cout << "\n";
         std::cout.flush();
     }
 
