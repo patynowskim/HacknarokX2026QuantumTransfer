@@ -90,7 +90,7 @@ function CaseFour() {
     };
     return (
         <div className="d-flex flex-column w-100 h-100 bg-dark" style={{ minHeight: '400px' }}>
-            <h1 className='pt-5 text-white w-100 d-flex justify-content-center align-items-center'>Scenariusz czwarty - Photon Number Speeding</h1>
+            <h1 className='pt-5 text-white w-100 d-flex justify-content-center align-items-center'>Scenariusz czwarty - Photon Number Splitting</h1>
             <div className='d-flex justify-content-center  w-100'>
             <p className='lead p-0 text-white w-40 d-flex text-center justify-content-center align-items-center'>Jest to wyrafinowana technika ataku, w której intruz przechwytuje nadmiarowe fotony z impulsów wielofotonowych, nie zaburzając przy tym stanu polaryzacji cząstek docierających do odbiorcy. Dzięki temu atakujący może potajemnie odczytać część przesyłanych informacji kryptograficznych, unikając wykrycia przez standardowe mechanizmy alarmowe systemu.</p>
             </div>
