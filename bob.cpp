@@ -235,9 +235,9 @@ int main(int argc, char* argv[]) {
         std::cerr << "\n--- [ BOB ] STARTING ML-KEM FALLBACK ---\n";
 
         uint8_t sync = 0;
-        if (!recv_all(client_fd, &sync, 1) || sync != 0x55) {
-            std::cerr << "[Bob] Protocol desync (missing sync byte)\n";
-            return 1;
+        while (recv(client_fd, (char*)&sync, 1, 0) > 0) {
+            if (sync == 0x55) break; 
+            std::cerr << "[Bob] DDoS Noise detected... skipping byte\n";
         }
 
         uint8_t mlkem_flag = 0;

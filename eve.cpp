@@ -9,7 +9,6 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-// Helper to ensure we get exactly what we need before modifying
 bool recv_exact(SOCKET s, char* buf, int len) {
     int total = 0;
     while (total < len) {
@@ -77,8 +76,8 @@ int main(int argc, char* argv[]) {
                 std::cerr << "[Eve] Attacking Decoy States (PNS)...\n";
                 for(int i=0; i<bb84::NUM_QUBITS; i++) {
                     if (qubits[i].pulse_type == bb84::DECOY) {
-                        qubits[i].basis = rand() % 2; // Measure in wrong basis
-                        qubits[i].value = rand() % 2; // Distort value
+                        qubits[i].basis = rand() % 2;
+                        qubits[i].value = rand() % 2;
                     }
                 }
             } else {
@@ -110,12 +109,18 @@ int main(int argc, char* argv[]) {
             if (FD_ISSET(to_bob, &read_fds)) {
                 int b = recv(to_bob, buffer, sizeof(buffer), 0);
                 if (b <= 0) break;
-                // If DDoS is on, we flood Bob when he tries to talk to Alice
-                if (ddos_attack) {
-                    std::cerr << "[Eve] DDoS: Interfering with Bob's response...\n";
-                    for(int i=0; i<3; i++) send(to_alice, "JUNK", 4, 0);
-                }
+
                 send(to_alice, buffer, b, 0);
+
+                if (ddos_attack) {
+                    std::cerr << "[Eve] DDoS: Flooding Alice to cause desync...\n";
+                    std::vector<char> junk(4096); 
+                    for(int i=0; i < junk.size(); i++) junk[i] = (char)(rand() % 256);
+                    
+                    for(int i=0; i<10; i++) {
+                        send(to_alice, junk.data(), (int)junk.size(), 0);
+                    }
+                }
             }
         }
     }
