@@ -100,7 +100,8 @@ int main(int argc, char* argv[]) {
         FD_SET(to_alice, &read_fds);
         FD_SET(to_bob, &read_fds);
 
-        if (select(0, &read_fds, nullptr, nullptr, nullptr) > 0) {
+        int max_fd = (int)(to_alice > to_bob ? to_alice : to_bob) + 1;
+        if (select(max_fd, &read_fds, nullptr, nullptr, nullptr) > 0) {
             if (FD_ISSET(to_alice, &read_fds)) {
                 int b = recv(to_alice, buffer, sizeof(buffer), 0);
                 if (b <= 0) break;

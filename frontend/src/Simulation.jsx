@@ -3,18 +3,18 @@ import './Simulation.css';
 
 function Simulation() {
   const menuItems = [
-    { name: 'Quantum Transfer', path: 'one' },
-    { name: 'ML-KEM', path: 'two' },
-    { name: 'Eavesdropping', path: 'three' },
-    { name: 'PNS', path: 'four' },
-    { name: 'DDoS', path: 'five' },
+    { name: 'Quantum Transfer', path: 'QuantumTransfer' },
+    { name: 'ML-KEM', path: 'MLKEM' },
+    { name: 'Eavesdropping', path: 'Eavesdropping' },
+    { name: 'PNS', path: 'PNS' },
+    { name: 'DDoS', path: 'DDoS' },
   ];
 
   return (
     <div className="simulationContainer">
       <div className="simulationNavSection">
         <Link to='/'>
-      <img src='logo.png' alt='logo, nawigacja do strony głównej' /></Link>
+      <img src='/logo.png' alt='logo, nawigacja do strony głównej' /></Link>
         <h2>Symulacja</h2>
         <hr />
         <ul>

@@ -258,6 +258,7 @@ int main(int argc, char* argv[]) {
             if (!bob_msg.empty()) {
                 std::cerr << "[Alice] Received decoded payload.\n";
                 std::cout.write(bob_msg.c_str(), bob_msg.size());
+                std::cout << "\n";
                 std::cout.flush();
             }
             closesocket(conn);
