@@ -86,19 +86,6 @@ int main(int argc, char* argv[]) {
         if (conn != INVALID_SOCKET) {
             std::cerr << "[Alice] Accepted connection.\n";
 
-            // Simple anti-ddos defence
-            #ifdef _WIN32
-            DWORD timeout = 5000;
-            setsockopt(conn, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
-            setsockopt(conn, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
-            #else
-            struct timeval tv;
-            tv.tv_sec = 5;
-            tv.tv_usec = 0;
-            setsockopt(conn, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
-            setsockopt(conn, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof(tv));
-            #endif
-
             // Fast handshake to prevent DDoS
             uint8_t probe;
             int r = recv(conn, (char*)&probe, 1, 0);
