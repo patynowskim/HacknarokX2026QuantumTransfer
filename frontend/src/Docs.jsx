@@ -4,6 +4,8 @@ import './Docs.css'
 import DocsOverview from './DocsOverview'
 import BB84Docs from './BB84Docs'
 import MLKEMDocs from './MLKEMDocs'
+import CryptoDocs from './CryptoDocs'
+import QuantumCircuitDocs from './QuantumCircuitDocs'
 
 function Docs() {
   const location = useLocation();
@@ -34,12 +36,24 @@ function Docs() {
             ML-KEM
           </Link>
         </li>
+        <li>
+          <Link to="/docs/crypto" className={isActive('/docs/crypto')}>
+            Crypto Framing
+          </Link>
+        </li>
+        <li>
+          <Link to="/docs/qc" className={isActive('/docs/qc')}>
+            Quantum Circuit
+          </Link>
+        </li>
       </ul>
     </div>
     <Routes>
       <Route path="/overview" element={<DocsOverview />} />
       <Route path="/bb84" element={<BB84Docs />} />
       <Route path="/mlkem" element={<MLKEMDocs />} />
+      <Route path="/crypto" element={<CryptoDocs />} />
+      <Route path="/qc" element={<QuantumCircuitDocs />} />
       <Route path="/" element={<DocsOverview />} />
     </Routes>
     </>
