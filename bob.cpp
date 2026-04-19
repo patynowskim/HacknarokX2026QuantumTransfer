@@ -77,6 +77,8 @@ int main(int argc, char* argv[]) {
     }
 
     std::cerr << "[Bob] Connected to Alice (Duplex Mode)\n";
+    uint8_t hello = 0x42; // arbitrary handshake byte
+    send(client_fd, (const char*)&hello, 1, 0);
 
     uint8_t mode = 0;
     if (!recv_all(client_fd, &mode, 1)) {
