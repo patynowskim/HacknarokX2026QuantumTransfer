@@ -48,7 +48,7 @@ function App() {
         <Route path="PNS" element={<CaseFour/>} />
         <Route path="DDoS" element={<CaseFive/>} />
       </Route>
-      <Route path="/docs" element={<Docs />} />
+      <Route path="/docs/*" element={<Docs />} />
 
     </Routes>
   );

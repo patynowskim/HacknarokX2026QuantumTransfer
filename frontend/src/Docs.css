@@ -54,6 +54,12 @@ section p {
   background-color: #e9ecef;
 }
 
+.navSection a.active {
+  color: #fff;
+  background-color: #007bff;
+  font-weight: bold;
+}
+
 .documentation {
   margin-left: 220px;
   padding: 20px;
