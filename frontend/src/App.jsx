@@ -13,12 +13,12 @@ import { Routes, Route, Link } from 'react-router-dom';
 
 function Home() {
   return (
-    <div className='container text-center mt-5'>
+    <div className='container text-center mt-5 w-100'>
       <div className="row mb-3">
         <div className="col-12">
           <img src='logo.png' alt='logo projektu' className='mb-4' style={{ maxWidth: '30%' }} />
           <h1 className='mb-3'>QTCP - Quantum Transmission Control Protocol</h1>
-          <p className='lead mb-4'>Bezpieczna wymiana kluczy kryptograficznych w erze komputerów kwantowych</p>
+          <p className='lead mb-4 w-100'>Bezpieczna wymiana kluczy kryptograficznych w erze komputerów kwantowych</p>
         </div>
       </div>
       <div className="row justify-content-center">

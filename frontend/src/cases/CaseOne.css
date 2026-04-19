@@ -28,3 +28,6 @@
     from { right: 0; }
     to { right: calc(100% - 20px); }
 }
+p{
+    font-size: 1rem !important
+}
