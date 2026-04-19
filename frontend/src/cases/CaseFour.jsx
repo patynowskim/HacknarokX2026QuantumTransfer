@@ -23,8 +23,8 @@ function CaseFour() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    alice_payload: "Tajny klucz od Alice",
-                    bob_payload: "Zrozumiałam, Bob.",
+                    alice_payload: "Zrozumiałam, Bob.",
+                    bob_payload: "Tajny klucz od Alice",
                     scenario: "pns"  
                 })
             });
