@@ -61,8 +61,8 @@ def index():
 @app.route('/api/simulate', methods=['POST'])
 def simulate():
     data = request.json
-    alice_payload = data.get('alice_payload', 'Hello from Alice')
-    bob_payload = data.get('bob_payload', 'Hello from Bob')
+    alice_payload = data.get('bob_payload', 'Hello from Alice')
+    bob_payload = data.get('alice_payload', 'Hello from Bob')
     
     scenario = data.get('scenario', 'normal')
     use_eve = data.get('use_eve', False)
