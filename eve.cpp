@@ -6,6 +6,8 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include "bb84.hpp"
+#include <thread>
+#include <chrono>
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -59,10 +61,29 @@ int main(int argc, char* argv[]) {
     std::cerr << "[Eve] Bob connected. Intercepting...\n";
 
     // --- STEP 1: RELAY MODE BYTE ---
-    char mode;
-    recv(to_alice, &mode, 1, 0);
-    send(to_bob, &mode, 1, 0);
-    std::cerr << "[Eve] Relayed Mode: " << (int)mode << "\n";
+    char first_byte;
+
+    // 1. Bob → Eve
+    if (!recv_exact(to_bob, &first_byte, 1)) {
+        std::cerr << "[Eve] Failed to receive handshake from Bob\n";
+        return 1;
+    }
+
+    // 2. Eve → Alice
+    send(to_alice, &first_byte, 1, 0);
+
+    // 3. Alice → Eve (mode)
+    if (!recv_exact(to_alice, &first_byte, 1)) {
+        std::cerr << "[Eve] Failed to receive mode from Alice\n";
+        return 1;
+    }
+    
+    char mode = first_byte;
+
+    // 4. Eve → Bob
+    send(to_bob, &first_byte, 1, 0);
+
+    std::cerr << "[Eve] Relayed handshake + mode\n";
 
     // --- STEP 2: INTERCEPT QUBITS (If BB84) ---
     if (mode == 0x01) {
@@ -114,13 +135,34 @@ int main(int argc, char* argv[]) {
                 send(to_alice, buffer, b, 0);
 
                 if (ddos_attack) {
-                    std::cerr << "[Eve] DDoS: Flooding Alice to cause desync...\n";
-                    std::vector<char> junk(4096); 
-                    for(int i=0; i < junk.size(); i++) junk[i] = (char)(rand() % 256);
-                    
-                    for(int i=0; i<10; i++) {
-                        send(to_alice, junk.data(), (int)junk.size(), 0);
-                    }
+                    ddos_attack = false; // Only trigger the background attack once
+                    std::cerr << "[Eve] DDoS: Launching Slowloris-style connection exhaustion...\n";
+
+                    std::thread([alice_addr]() {
+                        const int attack_connections = 50;
+
+                        for (int i = 0; i < attack_connections; i++) {
+                            SOCKET spam_sock = socket(AF_INET, SOCK_STREAM, 0);
+                            if (spam_sock == INVALID_SOCKET) continue;
+
+                            // Set a short timeout for the socket so we don't wait forever on full Linux backlog
+                            struct timeval timeout;
+                            timeout.tv_sec = 1;
+                            timeout.tv_usec = 0;
+                            setsockopt(spam_sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
+
+                            sockaddr_in target = alice_addr;
+
+                            if (connect(spam_sock, (struct sockaddr*)&target, sizeof(target)) != SOCKET_ERROR) {
+                                char partial = 0x01;
+                                send(spam_sock, &partial, 1, 0);
+                            } else {
+                                closesocket(spam_sock);
+                            }
+
+                            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                        }
+                    }).detach();
                 }
             }
         }
