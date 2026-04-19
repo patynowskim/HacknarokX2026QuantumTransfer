@@ -24,8 +24,8 @@ function CaseFive() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     alice_payload: "Tajny klucz od Alice",
-                    bob_payload: "Zrozumiałam, Bob.",
-                    scenario: "ddos"  
+                    bob_payload: "Zrozumiałem, Bob.",
+                    scenario: "ddos" 
                 })
             });
 
