@@ -64,7 +64,7 @@ Możesz przeprowadzać symulacje ręcznie, uruchamiając poszczególne komponent
 
 #### Przykład: Atak DDoS
 ```bash
-./alice.exe 0.0.0.0 8080 "A: DUPA WOLOWA"
+./alice.exe 0.0.0.0 8080 "A: SZYNKA WOLOWA"
 ./eve.exe 127.0.0.1 8080 8081 --ddos
 ./bob.exe 127.0.0.1 8081 "B: TEST TEST"
 ```

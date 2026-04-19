@@ -49,17 +49,11 @@ function Docs() {
           <li><strong>Rotacja:</strong> Cykliczna zmiana klucza w celu minimalizacji ryzyka kompromitacji.</li>
         </ol>
 
-        <div className="placeholder-img">
-          [MIEJSCE NA ZDJĘCIE: SCHEMAT LOGICZNY KROKÓW 1-4]
-        </div>
 
         <h4>Wersja kwantowa</h4>
         <p>Wykorzystuje przesył fotonów. Zgodnie z zasadą no-cloning i efektem obserwatora, każda próba przechwycenia (pomiaru) klucza przez stronę trzecią powoduje błąd transmisji i zapadnięcie stanu kwantowego. Pozwala to serwerom na natychmiastowe wykrycie podsłuchu i odrzucenie skompromitowanego klucza.</p>
 
-        <div className="placeholder-img">
-          [MIEJSCE NA ZDJĘCIE: FIZYKA PRZESYŁU BB84]
-        </div>
-        
+      
         <h4>Wersja standardowa (Post-Quantum)</h4>
         <p>W przypadku braku stabilnego kanału kwantowego (np. zbyt duże tłumienie światłowodu, błędy sprzętowe), QTCP używa ML-KEM. Jest to kryptografia oparta na kratach (lattice-based), obecnie uznawana za odporną na dekryptaż kwantowy.</p>
       </section>
